@@ -57,6 +57,7 @@ services:
     restart: always
     networks:
       - moeve-network
+      - webapps-net
 
 volumes:
   backend-data:
@@ -64,3 +65,5 @@ volumes:
 networks:
   moeve-network:
     driver: bridge
+  webapps-net:
+    external: true
