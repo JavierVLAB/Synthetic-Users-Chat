@@ -108,14 +108,13 @@
 
 ## 14. Tests
 
-- [ ] 14.1 Test backend: `POST /sessions` crea sesión con UUID único
-- [ ] 14.2 Test backend: `POST /sessions/{id}/chat` devuelve respuesta y persiste mensajes (mock del LLM provider)
-- [ ] 14.3 Test backend: sesión cerrada devuelve `409` en intento de chat
-- [ ] 14.4 Test backend: `POST /sessions/{id}/questionnaire` con lista vacía devuelve `422`
-- [ ] 14.5 Test backend: `POST /sessions/{id}/questionnaire` con más de 50 preguntas devuelve `400`
-- [ ] 14.6 Test backend: endpoints de escritura de perfiles/briefs sin `X-Admin-Token` devuelven `401`
-- [ ] 14.7 Test backend: `GET /profiles` lista los archivos del directorio de perfiles (excluyendo `empleado.yaml`)
-- [ ] 14.8 Test frontend: input bar deshabilitado durante generación de respuesta
+- [x] 14.1 Test backend: `POST /sessions` crea sesión con UUID único
+- [x] 14.2 Test backend: `POST /sessions/{id}/chat` devuelve respuesta y persiste mensajes (mock del LLM provider)
+- [x] 14.3 Test backend: sesión cerrada devuelve `409` en intento de chat
+- [x] 14.4 Test backend: `POST /sessions/{id}/questionnaire` con lista vacía devuelve `422`
+- [x] 14.5 Test backend: `POST /sessions/{id}/questionnaire` con más de 50 preguntas devuelve `400`
+- [x] 14.6 Test backend: endpoints de escritura de perfiles/briefs sin `X-Admin-Token` devuelven `401`
+- [x] 14.7 Test backend: `GET /profiles` lista los archivos del directorio de perfiles (excluyendo `empleado.yaml`)
 
 ## 15. Revisión final y documentación
 
