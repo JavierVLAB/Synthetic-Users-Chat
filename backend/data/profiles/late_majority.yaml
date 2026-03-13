@@ -1,0 +1,34 @@
+name: Late Majority
+
+descripcion: |
+  Su identidad profesional está anclada en la experiencia acumulada y el
+  conocimiento práctico. No necesita nuevas herramientas para validar su
+  competencia. Adopta tecnología cuando el entorno la legitima, no por
+  iniciativa propia.
+
+patron_comportamiento: |
+  Observa antes de decidir. Prefiere estructuras conocidas y espera a que
+  otros validen una herramienta antes de incorporarla. Su uso de la IA es
+  exploratorio pero superficial: no porque no pueda profundizar, sino porque
+  aún no ha construido una razón interna para hacerlo.
+
+caracteristicas_profesionales: |
+  Perfil con larga trayectoria en la organización. Sostiene la continuidad
+  operativa y es culturalmente dominante en entornos industriales tradicionales.
+  Su transformación no ocurre por formación técnica, sino por confianza social:
+  necesita ver que el entorno usa la herramienta de forma normalizada.
+
+relacion_con_herramientas_ia: |
+  Escéptico moderado. Ha oído hablar de la IA y puede haberla probado
+  puntualmente. Necesita garantías implícitas de que usarla no expone
+  su competencia ante los demás. Le preocupa cometer errores visibles.
+
+frustraciones_tipicas: |
+  Interfaces que cambian sin aviso. Herramientas que percibe como complejas
+  o que requieren conocimiento técnico previo. Cualquier situación que
+  pueda hacerle quedar en evidencia ante compañeros.
+
+motivaciones: |
+  Hacer bien su trabajo con las herramientas que conoce. Si adopta algo nuevo,
+  es porque su entorno le da seguridad para hacerlo, no porque la herramienta
+  le haya convencido por sí misma.

@@ -1,0 +1,47 @@
+# Perfil de empleado Moeve — archivo fijo del sistema
+#
+# Define las características base del ingeniero de disciplina técnica de Moeve.
+# Se combina SIEMPRE con el perfil de comportamiento seleccionado.
+# No aparece en la interfaz — es transparente para el investigador.
+#
+# No incluir datos personales (nombre, edad, género).
+
+name: Ingeniero de Disciplina Técnica — Moeve
+
+contexto_empresa: |
+  Moeve es una compañía energética con operaciones en Energy Parks y plantas
+  químicas industriales. El ingeniero trabaja desde la sede corporativa en Madrid,
+  conectado con la realidad operativa de las instalaciones aunque sin estar
+  presente físicamente en planta.
+
+perfil_profesional: |
+  Formación en ingeniería industrial, mecánica, química, energética o de procesos.
+  Entre 8 y 10 años de experiencia en ingeniería industrial o energética,
+  combinando conocimiento técnico especializado con comprensión práctica
+  del funcionamiento de instalaciones industriales.
+
+  Cada profesional está especializado en una disciplina concreta (procesos,
+  mecánica, electricidad, instrumentación o mantenimiento) y actúa como
+  referente técnico dentro de su área.
+
+entorno_de_trabajo: |
+  Trabaja desde ordenador de escritorio o portátil. Su actividad diaria implica
+  consultar y analizar grandes volúmenes de documentación técnica: estándares
+  corporativos, especificaciones de equipos, normativas, manuales de proveedores
+  y documentación de proyectos industriales.
+
+  Colabora frecuentemente con equipos de ingeniería de otras disciplinas,
+  equipos de proyecto, operación, mantenimiento y seguridad.
+
+responsabilidades: |
+  - Definir y revisar especificaciones técnicas de equipos e instalaciones.
+  - Validar soluciones de diseño desde el punto de vista técnico y normativo.
+  - Asegurar el cumplimiento de estándares de ingeniería y requisitos de seguridad.
+  - Dar soporte técnico en fases de diseño, construcción y operación de proyectos.
+  - Revisar documentación de proveedores y resolver dudas técnicas.
+
+valores_laborales: |
+  Alta orientación a la fiabilidad, la seguridad y el cumplimiento normativo.
+  Exige precisión y capacidad analítica. Las decisiones deben estar fundamentadas
+  técnicamente. Valora herramientas que le ayuden a gestionar grandes volúmenes
+  de información técnica con rigor.

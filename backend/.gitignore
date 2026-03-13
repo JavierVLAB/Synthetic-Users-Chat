@@ -1,0 +1,13 @@
+# Entorno virtual — nunca en el repositorio
+venv/
+.venv/
+
+# Variables de entorno locales
+.env
+
+# Base de datos SQLite generada en desarrollo
+data/db/
+
+# Caché de Python
+__pycache__/
+*.py[cod]

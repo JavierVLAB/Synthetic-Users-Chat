@@ -1,0 +1,91 @@
+/*
+ * Estilos globales de la aplicación.
+ *
+ * Contiene:
+ *  - Declaraciones @font-face para Moeve Sans (Regular, Light, Bold)
+ *  - Tokens de diseño de Figma registrados como variables CSS en @theme (Tailwind v4)
+ *  - Reset mínimo de body
+ *
+ * Los tokens de color y tipografía se derivan directamente del archivo Figma
+ * del proyecto Moeve (file key: f6O6bqKI7JyeXEdjpLKxD4).
+ */
+
+@import "tailwindcss";
+
+/* ── Fuentes Moeve Sans ──────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: "Moeve Sans";
+  src: url("/fonts/MoeveSans-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Moeve Sans";
+  src: url("/fonts/MoeveSans-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Moeve Sans";
+  src: url("/fonts/MoeveSans-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Tokens de diseño (Tailwind v4 @theme) ──────────────────────────────── */
+/*
+ * @theme expone los valores como clases de utilidad Tailwind:
+ *   --color-primary-dark → bg-primary-dark, text-primary-dark, border-primary-dark
+ *   --font-sans          → font-sans
+ *
+ * Fuente de valores:
+ *   Figma Moeve → tokens extraídos vía API REST
+ */
+
+@theme inline {
+  /* Colores corporativos */
+  --color-primary-dark: #004656; /* Sidebar / headers */
+  --color-primary-btn: #90ffbb; /* Botón primario (fondo) */
+  --color-accent: #047dba; /* Links, bordes activos */
+  --color-error: #d52b1e; /* Errores y alertas */
+
+  /* Fondos */
+  --color-app-bg: #f9fafe; /* Fondo general de la app */
+  --color-conv-bg: #f5f7fd; /* Fondo del área de conversación */
+
+  /* Bordes */
+  --color-split: #9bcbe3; /* colorSplit Figma — bordes generales */
+
+  /* Neutros */
+  --color-white: #ffffff;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #6b7280;
+
+  /* Tipografía */
+  --font-sans: "Moeve Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Tamaños de fuente del sistema de diseño */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.5rem; /* 24px */
+  --text-2xl: 2.125rem; /* 34px */
+}
+
+/* ── Reset de body ──────────────────────────────────────────────────────── */
+
+body {
+  background-color: var(--color-app-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

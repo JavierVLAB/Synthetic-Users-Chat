@@ -1,0 +1,63 @@
+"""
+Proveedor LLM para OpenAI (GPT-4).
+
+Usa la librería oficial openai. La API key se toma de la configuración
+central — nunca se hardcodea aquí.
+"""
+
+import logging
+
+import httpx
+from openai import AsyncOpenAI, APIConnectionError, APITimeoutError
+
+from app.config import settings
+from app.providers.base import LLMProvider
+
+logger = logging.getLogger(__name__)
+
+# Tiempo máximo de espera para una respuesta del modelo (segundos)
+REQUEST_TIMEOUT_SECONDS = 60
+
+
+class OpenAIProvider(LLMProvider):
+    """
+    Proveedor que conecta con la API de OpenAI para generar respuestas.
+
+    Usa GPT-4 por defecto. El cliente se inicializa con la API key
+    configurada en las variables de entorno.
+    """
+
+    def __init__(self) -> None:
+        self.client = AsyncOpenAI(
+            api_key=settings.openai_api_key,
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
+        self.model = "gpt-4o"
+
+    async def chat(self, messages: list[dict], system_prompt: str) -> str:
+        """
+        Envía la conversación a OpenAI y devuelve la respuesta del modelo.
+
+        Args:
+            messages: Historial de mensajes en formato OpenAI
+                      [{"role": "user"|"assistant", "content": str}].
+            system_prompt: System prompt construido con perfiles y brief.
+
+        Returns:
+            Texto de la respuesta generada por GPT-4.
+
+        Raises:
+            APIConnectionError: Si no hay conexión con la API de OpenAI.
+            APITimeoutError: Si la respuesta supera el timeout configurado.
+        """
+        # El system prompt va como primer mensaje con role "system"
+        full_messages = [{"role": "system", "content": system_prompt}] + messages
+
+        logger.info(f"Enviando {len(messages)} mensajes a OpenAI ({self.model})")
+
+        response = await self.client.chat.completions.create(
+            model=self.model,
+            messages=full_messages,
+        )
+
+        return response.choices[0].message.content

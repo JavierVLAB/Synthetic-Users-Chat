@@ -1,0 +1,37 @@
+# Variables de entorno — nunca en el repositorio
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Base de datos SQLite
+*.db
+*.sqlite3
+backend/data/db/
+
+# Next.js
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+.claude/settings.json
+.claude/settings.local.json

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Informe de sesión — Moeve</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.55;
+      color: #1a1a1a;
+      background: #ffffff;
+    }
+
+    /* ── Encabezado ─────────────────────────────────────────────────────── */
+    .header {
+      width: 100%;
+      border-bottom: 3px solid #004656;
+      padding-bottom: 16px;
+      margin-bottom: 28px;
+    }
+
+    .header-table {
+      display: table;
+      width: 100%;
+    }
+
+    .header-left {
+      display: table-cell;
+      vertical-align: bottom;
+    }
+
+    .header-right {
+      display: table-cell;
+      vertical-align: bottom;
+      text-align: right;
+      width: 200px;
+    }
+
+    .header-brand {
+      font-size: 22pt;
+      font-weight: bold;
+      color: #004656;
+    }
+
+    .report-title {
+      font-size: 13pt;
+      font-weight: bold;
+      color: #004656;
+      margin-top: 3px;
+    }
+
+    .header-meta {
+      font-size: 9pt;
+      color: #5a7d91;
+      margin-top: 4px;
+    }
+
+    /* ── Secciones ──────────────────────────────────────────────────────── */
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      font-size: 10.5pt;
+      font-weight: bold;
+      color: #047dba;
+      border-bottom: 1px solid #d3ecf7;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    /* ── Metadatos ──────────────────────────────────────────────────────── */
+    .meta-table {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .meta-row {
+      display: table-row;
+    }
+
+    .meta-label {
+      display: table-cell;
+      width: 130px;
+      padding: 2px 8px 2px 0;
+      font-size: 9pt;
+      font-weight: bold;
+      color: #5a7d91;
+      vertical-align: top;
+    }
+
+    .meta-value {
+      display: table-cell;
+      padding: 2px 0;
+      font-size: 9pt;
+      color: #1a1a1a;
+      vertical-align: top;
+    }
+
+    /* ── Resúmenes en dos columnas ──────────────────────────────────────── */
+    .summary-table {
+      display: table;
+      width: 100%;
+      border-spacing: 12px 0;
+    }
+
+    .summary-cell {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+    }
+
+    .summary-box {
+      background: #f9fafe;
+      border-left: 3px solid #047dba;
+      padding: 10px 14px;
+    }
+
+    .summary-box-title {
+      font-size: 8.5pt;
+      font-weight: bold;
+      color: #047dba;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .summary-box-text {
+      font-size: 9.5pt;
+      color: #3a5d78;
+      white-space: pre-wrap;
+    }
+
+    /* ── Mensajes ───────────────────────────────────────────────────────── */
+    .message {
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      page-break-inside: avoid;
+    }
+
+    .msg-header-table {
+      display: table;
+      width: 100%;
+      margin-bottom: 5px;
+    }
+
+    .msg-author {
+      display: table-cell;
+      font-size: 8.5pt;
+      font-weight: bold;
+      vertical-align: middle;
+    }
+
+    .msg-time {
+      display: table-cell;
+      font-size: 8.5pt;
+      color: #8c8c8c;
+      text-align: right;
+      vertical-align: middle;
+      width: 60px;
+    }
+
+    .msg-body {
+      font-size: 10pt;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .message.investigador {
+      background: #eaf4fb;
+      border: 1px solid #c5dff0;
+      margin-left: 12%;
+    }
+    .message.investigador .msg-author { color: #1b3a5a; }
+
+    .message.cuestionario {
+      background: #eef1ff;
+      border: 1px solid #c8d0f0;
+      margin-left: 12%;
+    }
+    .message.cuestionario .msg-author { color: #3949ab; }
+
+    .message.sintetico {
+      background: #ffffff;
+      border: 1px solid #dde3ea;
+      border-left: 3px solid #047dba;
+      margin-right: 8%;
+    }
+    .message.sintetico .msg-author { color: #047dba; }
+
+    /* ── Footer ─────────────────────────────────────────────────────────── */
+    .footer {
+      margin-top: 36px;
+      padding-top: 10px;
+      border-top: 1px solid #e7eaef;
+      font-size: 8.5pt;
+      color: #8c8c8c;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado -->
+  <div class="header">
+    <div class="header-table">
+      <div class="header-left">
+        <div class="header-brand">MOEVE</div>
+        <div class="report-title">Informe de sesión de investigación</div>
+      </div>
+      <div class="header-right">
+        <div class="header-meta">Fecha: {{ session_date }}</div>
+        <div class="header-meta">Usuarios sintéticos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metadatos de la sesión -->
+  <div class="section">
+    <div class="section-title">Datos de la sesión</div>
+    <div class="meta-table">
+      <div class="meta-row">
+        <div class="meta-label">ID de sesión</div>
+        <div class="meta-value">{{ session.session_id }}</div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-label">Perfil</div>
+        <div class="meta-value">{{ session.profile_id }}</div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-label">Brief</div>
+        <div class="meta-value">{{ session.brief_id }}</div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-label">Proveedor LLM</div>
+        <div class="meta-value">{{ session.llm_provider }}</div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-label">Mensajes</div>
+        <div class="meta-value">{{ message_count }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resúmenes contexto -->
+  <div class="section">
+    <div class="section-title">Contexto de la sesión</div>
+    <div class="summary-table">
+      <div class="summary-cell">
+        <div class="summary-box">
+          <div class="summary-box-title">Perfil de comportamiento</div>
+          <div class="summary-box-text">{{ profile_content }}</div>
+        </div>
+      </div>
+      <div class="summary-cell">
+        <div class="summary-box">
+          <div class="summary-box-title">Brief del producto</div>
+          <div class="summary-box-text">{{ brief_content }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conversación -->
+  <div class="section">
+    <div class="section-title">Conversación ({{ message_count }} mensajes)</div>
+
+    {% for message in messages %}
+      {% if message.is_questionnaire %}
+        <div class="message cuestionario">
+          <div class="msg-header-table">
+            <div class="msg-author">Cuestionario — Investigador</div>
+            <div class="msg-time">{{ message.time }}</div>
+          </div>
+          <div class="msg-body">{{ message.content }}</div>
+        </div>
+      {% elif message.role == 'user' %}
+        <div class="message investigador">
+          <div class="msg-header-table">
+            <div class="msg-author">Investigador</div>
+            <div class="msg-time">{{ message.time }}</div>
+          </div>
+          <div class="msg-body">{{ message.content }}</div>
+        </div>
+      {% else %}
+        <div class="message sintetico">
+          <div class="msg-header-table">
+            <div class="msg-author">Usuario sintético</div>
+            <div class="msg-time">{{ message.time }}</div>
+          </div>
+          <div class="msg-body">{{ message.content }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="footer">
+    Sistema de usuarios sintéticos © Moeve 2026 — Documento generado automáticamente
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+name: Pragmatic Expert
+
+descripcion: |
+  No busca innovación por fascinación: busca eficacia. Su identidad está ligada
+  a la competencia técnica y a la resolución correcta de problemas. Para él,
+  el valor está en acertar, no en experimentar.
+
+patron_comportamiento: |
+  Toma decisiones informadas y documentadas. No adopta algo nuevo hasta que
+  ha demostrado utilidad real. Prefiere sistemas predecibles e información
+  precisa. Si detecta inconsistencia o superficialidad en una herramienta,
+  retira la confianza rápidamente. La credibilidad es binaria: funciona o no funciona.
+
+caracteristicas_profesionales: |
+  Perfil técnico con fuerte sentido de la responsabilidad. Siente el peso
+  del error más que otros. Es fiable para su entorno y sostiene los estándares
+  de calidad técnica del equipo. Su validación de una herramienta tiene peso
+  simbólico en la organización.
+
+relacion_con_herramientas_ia: |
+  La integra cuando reduce fricción cognitiva en tareas concretas. Necesita
+  verificar los resultados antes de confiar en ellos. No tiene problema
+  con la IA en sí misma; tiene problema con la imprecisión.
+
+frustraciones_tipicas: |
+  Respuestas ambiguas o incorrectas que no puede verificar fácilmente.
+  Herramientas que priorizan la apariencia sobre la precisión.
+  Cualquier cosa que ponga en riesgo la calidad de su trabajo.
+
+motivaciones: |
+  Quiere hacer su trabajo bien, con menos carga cognitiva. Una herramienta
+  es válida si le ayuda a ser más riguroso o más eficiente, no si le propone
+  atajos que comprometen la calidad.

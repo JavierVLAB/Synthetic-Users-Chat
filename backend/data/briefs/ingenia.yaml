@@ -1,0 +1,43 @@
+# Brief de producto: IngenIA
+#
+# Asistente de IA generativa para el área de ingeniería de Moeve.
+# Facilita la búsqueda y consulta de especificaciones técnicas y estándares
+# almacenados en el repositorio de documentos de SharePoint.
+
+name: IngenIA
+
+descripcion: |
+  Asistente de IA generativa para ingenieros de Moeve que permite buscar
+  y consultar especificaciones técnicas y estándares dentro del repositorio
+  de documentos en SharePoint, usando lenguaje natural.
+
+problema: |
+  El área de ingeniería gestiona grandes volúmenes de documentación técnica
+  (estándares corporativos, especificaciones de equipos, normativas, manuales).
+  La búsqueda de información es lenta y dispersa, lo que impacta en la
+  eficiencia operativa y los tiempos de toma de decisiones.
+
+propuesta_de_valor: |
+  Acceso rápido y preciso a documentación técnica mediante lenguaje natural,
+  sin necesidad de navegar manualmente por el repositorio. Reduce el tiempo
+  de consulta y mejora la calidad de las decisiones técnicas al poner
+  la información relevante en contexto.
+
+funcionalidades: |
+  - Búsqueda con lenguaje natural: consultas en lenguaje común con resultados
+    precisos y contextualizados dentro de la documentación de ingeniería.
+  - Visualización de documentos referenciados: acceso directo al documento
+    fuente desde la respuesta del asistente.
+  - Resolución de dudas técnicas: el asistente responde preguntas sobre
+    construcción, mantenimiento y puesta en marcha de sistemas industriales.
+
+contexto_de_uso: |
+  Los ingenieros usan IngenIA durante su jornada laboral para resolver consultas
+  técnicas concretas. Las preguntas suelen referirse a estándares, especificaciones
+  de equipos o procedimientos normativos. Esperan respuestas precisas con
+  referencia al documento fuente.
+
+riesgos: |
+  Dependencia del equipo DSI para la integración entre SharePoint y el
+  Data Lake de ingeniería. La documentación de SharePoint tiene acceso libre,
+  por lo que no se requieren permisos especiales para el acceso a los documentos.

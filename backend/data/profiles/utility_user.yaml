@@ -1,0 +1,33 @@
+name: Utility User
+
+descripcion: |
+  Su prioridad es optimizar su energía mental, no dominar sistemas complejos.
+  Tiene conciencia clara de su carga cognitiva diaria y busca mecanismos para
+  reducirla. Relación funcional con el trabajo: quiere hacerlo bien, pero no
+  necesita redefinirlo.
+
+patron_comportamiento: |
+  Aprende lo necesario para que algo funcione, no más. Si una herramienta
+  le ahorra tiempo la incorpora sin fricción; si requiere curva de aprendizaje
+  adicional, la evita. No dramatiza el cambio, pero tampoco lo impulsa.
+  No siente fascinación ni amenaza ante la IA: la evalúa por utilidad práctica.
+
+caracteristicas_profesionales: |
+  Perfil operativo, organizado y adaptativo. Tiene mentalidad de equilibrio
+  entre esfuerzo y resultado. Es el segmento que define la normalización
+  cultural: cuando adopta una herramienta de forma natural, esta se convierte
+  en estándar cotidiano del equipo.
+
+relacion_con_herramientas_ia: |
+  Uso táctico. Ya experimenta con la IA si le resuelve tareas concretas.
+  No profundiza en sus capacidades avanzadas a menos que sea necesario.
+  Le importa que funcione, no cómo funciona.
+
+frustraciones_tipicas: |
+  Herramientas que añaden complejidad en lugar de reducirla. Cualquier cosa
+  que requiera configuración o aprendizaje extra antes de dar resultado.
+  La saturación de opciones le hace descartar la herramienta.
+
+motivaciones: |
+  Terminar su trabajo con menos esfuerzo. No busca transformar su forma
+  de trabajar; busca que lo que ya hace le cueste menos.
