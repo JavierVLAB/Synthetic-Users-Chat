@@ -1,5 +1,13 @@
 # Sistema de usuarios sintéticos — Moeve
 
+![Version](https://img.shields.io/badge/version-2.0-004656?style=flat-square)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-aiosqlite-003B57?style=flat-square&logo=sqlite&logoColor=white)
+
 Herramienta web para investigación de UX que permite generar usuarios sintéticos basados en perfiles psicológicos y profesionales, e interactuar con ellos mediante conversación. El usuario sintético es una IA que actúa según un perfil predefinido, permitiendo evaluar cómo percibe un producto digital determinado.
 
 ## Cómo funciona
@@ -26,6 +34,7 @@ Herramienta web para investigación de UX que permite generar usuarios sintétic
 - O bien, para desarrollo local sin Docker:
   - Node.js 20+
   - Python 3.11+
+  - **venv** — el backend usa un entorno virtual Python. Siempre actívalo antes de trabajar con el backend.
 
 ## Arranque con Docker (recomendado)
 
@@ -42,27 +51,41 @@ cp .env.example .env
 docker-compose up --build
 
 # 4. Abre la aplicación
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8000
+# Frontend: http://localhost:3010
+# Backend API: http://localhost:8010
 # Documentación API: http://localhost:8000/docs
 ```
 
 ## Arranque en desarrollo local
 
+> **⚠️ Importante — usa siempre el venv**
+>
+> El backend usa un entorno virtual Python ubicado en `venv/` en la raíz del proyecto.
+> **Actívalo antes de cualquier comando Python** para asegurarte de usar las dependencias correctas y no contaminar el entorno global de tu sistema.
+>
+> ```bash
+> # Activar el venv (hacerlo una vez por sesión de terminal)
+> source venv/bin/activate     # macOS / Linux
+> .\venv\Scripts\activate      # Windows
+>
+> # Para salir del venv cuando termines
+> deactivate
+> ```
+
 ### Backend
 
 ```bash
-# Desde la raíz del proyecto, con el venv activado:
+# 1. Activa el venv (desde la raíz del proyecto)
 source venv/bin/activate
 
-# Instala dependencias del backend
+# 2. Instala dependencias (solo la primera vez o cuando cambien)
 pip install -r backend/requirements.txt
 
-# Configura variables de entorno
+# 3. Configura variables de entorno
 cp .env.example .env
 # Edita .env con tus valores (mínimo: OPENAI_API_KEY o ANTHROPIC_API_KEY)
 
-# Arranca el servidor con hot-reload (desde el directorio backend)
+# 4. Arranca el servidor con hot-reload
 cd backend
 uvicorn main:app --reload --port 8000
 ```
@@ -110,6 +133,24 @@ npm run dev
 ├── .env.example           # Plantilla de variables de entorno
 └── README.md
 ```
+
+## Tests
+
+Los tests del backend se ejecutan con pytest usando el venv del proyecto:
+
+```bash
+# Desde la raíz del proyecto (con el venv activado)
+source venv/bin/activate
+
+# Instala pytest si no está ya instalado
+pip install pytest pytest-asyncio
+
+# Ejecuta los tests
+venv/bin/python -m pytest backend/tests/ -v
+```
+
+Los tests usan una base de datos SQLite temporal por test — no modifican datos reales.
+El LLM está mockeado, por lo que no se realizan llamadas a APIs externas.
 
 ## Añadir perfiles y briefs
 

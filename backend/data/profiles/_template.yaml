@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PLANTILLA DE PERFIL DE COMPORTAMIENTO
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Cómo crear un perfil nuevo:
+#   1. Copia este archivo con un nombre descriptivo en snake_case, p.ej.:
+#        data/profiles/usuario_avanzado.yaml
+#   2. Rellena los campos siguiendo la guía de abajo.
+#   3. El sistema lo detecta automáticamente — no es necesario tocar código.
+#
+# Campos OBLIGATORIOS:
+#   name           — Nombre legible del perfil, se muestra en la UI.
+#   descripcion    — Resumen corto del tipo de usuario (2-4 frases).
+#
+# Campos RECOMENDADOS (mejoran la calidad de la simulación):
+#   patron_comportamiento       — Cómo explora y usa herramientas nuevas.
+#   caracteristicas_profesionales — Contexto laboral y relación con la tecnología.
+#   relacion_con_herramientas_ia  — Actitud y experiencia previa con IA.
+#   frustraciones_tipicas       — Qué le genera fricción o abandono.
+#   motivaciones                — Qué le hace seguir usando una herramienta.
+#
+# Restricciones:
+#   - NO incluir datos personales: sin nombre, edad, género ni identidad.
+#   - NO nombrar el archivo "empleado.yaml" — ese perfil está reservado al
+#     perfil fijo del sistema y no aparece en la lista de la UI.
+#   - Los campos son texto libre en formato YAML block scalar (|).
+#     Puedes añadir campos adicionales si enriquecen el prompt del LLM.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Nombre del perfil  # Requerido — visible en la UI
+
+descripcion: |
+  Describe brevemente este tipo de usuario: su actitud general hacia la
+  tecnología, su contexto profesional y qué lo hace diferente de otros perfiles.
+
+patron_comportamiento: |
+  Cómo aborda herramientas nuevas. ¿Explora por su cuenta o necesita guía?
+  ¿Lee documentación o aprende haciendo? ¿Tolera la ambigüedad o la evita?
+
+caracteristicas_profesionales: |
+  Tipo de rol, sector o experiencia que lo define. No datos personales,
+  sino características del colectivo (p.ej. "trabaja en entornos regulados",
+  "experiencia media-alta en ofimática").
+
+relacion_con_herramientas_ia: |
+  ¿Ha usado IA antes? ¿Con qué frecuencia? ¿Qué espera de ella?
+  ¿Confía en sus respuestas o las cuestiona?
+
+frustraciones_tipicas: |
+  Situaciones que le hacen abandonar una herramienta o perder la confianza.
+  Ejemplos: respuestas imprecisas, flujos complicados, falta de contexto.
+
+motivaciones: |
+  Qué necesita que la herramienta le dé para seguir usándola.
+  Ejemplos: ahorro de tiempo real, respuestas confiables, autonomía.

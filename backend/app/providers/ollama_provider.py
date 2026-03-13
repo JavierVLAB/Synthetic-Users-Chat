@@ -27,6 +27,7 @@ class OllamaProvider(LLMProvider):
     """
 
     def __init__(self) -> None:
+        """Inicializa el proveedor con la URL base y modelo configurados en el entorno."""
         self.base_url = settings.ollama_base_url.rstrip("/")
         self.model = settings.ollama_model
 

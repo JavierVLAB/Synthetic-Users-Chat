@@ -29,6 +29,7 @@ class HuggingFaceProvider(LLMProvider):
     """
 
     def __init__(self) -> None:
+        """Inicializa el proveedor con la API key y modelo configurados en el entorno."""
         self.api_key = settings.hf_api_key
         # El nombre puede incluir el sufijo ":nscale" para identificar el proveedor,
         # pero la API solo acepta el nombre del modelo sin ese sufijo.

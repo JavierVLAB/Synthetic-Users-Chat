@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PLANTILLA DE BRIEF DE PRODUCTO
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Cómo crear un brief nuevo:
+#   1. Copia este archivo con un nombre descriptivo en snake_case, p.ej.:
+#        data/briefs/asistente_rrhh.yaml
+#   2. Rellena los campos siguiendo la guía de abajo.
+#   3. El sistema lo detecta automáticamente — no es necesario tocar código.
+#
+# Campos OBLIGATORIOS:
+#   name        — Nombre del producto o herramienta, se muestra en la UI.
+#   descripcion — Qué es el producto en 2-3 frases.
+#
+# Campos RECOMENDADOS (mejoran la calidad de la simulación):
+#   problema           — Problema o necesidad que el producto resuelve.
+#   propuesta_de_valor — Beneficio principal que aporta al usuario.
+#   funcionalidades    — Lista de capacidades o características principales.
+#   contexto_de_uso    — Cuándo, dónde y cómo lo usa el usuario en su día a día.
+#   riesgos            — Limitaciones conocidas, dependencias o puntos débiles.
+#
+# Restricciones:
+#   - Cuanto más contexto real se incluya, más fiel será la simulación.
+#   - Los campos son texto libre en formato YAML block scalar (|).
+#     Puedes añadir campos adicionales relevantes para el producto.
+#   - El contenido completo del archivo se pasa tal cual al system prompt
+#     del LLM — no hay parsing selectivo de campos.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Nombre del producto  # Requerido — visible en la UI
+
+descripcion: |
+  Describe brevemente qué es el producto y para qué sirve.
+  Quién lo usa y en qué contexto organizativo.
+
+problema: |
+  Qué problema o ineficiencia resuelve. Cuál es la situación actual
+  sin el producto (p.ej. procesos manuales, búsquedas lentas, datos dispersos).
+
+propuesta_de_valor: |
+  Qué mejora concreta aporta al usuario final. Cuantifica si es posible
+  (p.ej. "reduce el tiempo de X de 30 min a 2 min").
+
+funcionalidades: |
+  - Funcionalidad 1: descripción breve.
+  - Funcionalidad 2: descripción breve.
+  - Funcionalidad 3: descripción breve.
+
+contexto_de_uso: |
+  Cuándo lo usa el usuario en su jornada. Qué tipo de consultas o tareas
+  realiza con él. Qué espera encontrar o conseguir en cada sesión.
+
+riesgos: |
+  Limitaciones conocidas del producto, dependencias técnicas o
+  situaciones en las que el producto no funciona bien todavía.

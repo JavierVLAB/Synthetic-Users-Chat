@@ -28,6 +28,7 @@ class AnthropicProvider(LLMProvider):
     """
 
     def __init__(self) -> None:
+        """Inicializa el cliente AsyncAnthropic con la API key y timeout configurados."""
         self.client = AsyncAnthropic(
             api_key=settings.anthropic_api_key,
             timeout=REQUEST_TIMEOUT_SECONDS,

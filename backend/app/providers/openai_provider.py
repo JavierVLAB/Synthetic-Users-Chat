@@ -28,6 +28,7 @@ class OpenAIProvider(LLMProvider):
     """
 
     def __init__(self) -> None:
+        """Inicializa el cliente AsyncOpenAI con la API key y timeout configurados."""
         self.client = AsyncOpenAI(
             api_key=settings.openai_api_key,
             timeout=REQUEST_TIMEOUT_SECONDS,

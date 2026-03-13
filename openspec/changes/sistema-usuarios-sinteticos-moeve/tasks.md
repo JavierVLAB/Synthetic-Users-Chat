@@ -118,12 +118,12 @@
 
 ## 15. Revisión final y documentación
 
-- [ ] 15.1 Verificar que no hay credenciales hardcodeadas en ningún archivo del repositorio
-- [ ] 15.2 Verificar que `.env` está en `.gitignore` y `.env.example` está en el repositorio
-- [ ] 15.3 Crear archivos de perfil con comentarios explicando la estructura y campos de ejemplo
-- [ ] 15.4 Crear archivos de brief con comentarios explicando la estructura y campos de ejemplo
-- [ ] 15.5 Smoke test completo con Docker Compose: levantar, crear sesión, conversar, subir cuestionario, descargar PDF, cerrar sesión
-- [ ] 15.6 Verificar CORS: solo los orígenes de `ALLOWED_ORIGINS` pueden hacer requests al backend
-- [ ] 15.7 Revisión de legibilidad del backend: todas las funciones públicas tienen docstring, type hints en todas las funciones, nombres descriptivos sin abreviaturas, sin lógica de negocio en los routers
-- [ ] 15.8 Revisión de legibilidad del frontend: JSDoc en hooks y funciones complejas, nombres de componentes y props descriptivos, sin lógica en los componentes de presentación
-- [ ] 15.9 Verificar que el `README.md` raíz explica el proyecto de forma que un developer externo pueda entenderlo, levantarlo y contribuir sin preguntar nada
+- [x] 15.1 Verificar que no hay credenciales hardcodeadas en ningún archivo del repositorio
+- [x] 15.2 Verificar que `.env` está en `.gitignore` y `.env.example` está en el repositorio
+- [x] 15.3 Crear archivos de perfil con comentarios explicando la estructura y campos de ejemplo
+- [x] 15.4 Crear archivos de brief con comentarios explicando la estructura y campos de ejemplo
+- [x] 15.5 Smoke test completo con Docker Compose: levantar, crear sesión, conversar, subir cuestionario, descargar PDF, cerrar sesión
+- [x] 15.6 Verificar CORS: solo los orígenes de `ALLOWED_ORIGINS` pueden hacer requests al backend
+- [x] 15.7 Revisión de legibilidad del backend: todas las funciones públicas tienen docstring, type hints en todas las funciones, nombres descriptivos sin abreviaturas, sin lógica de negocio en los routers
+- [x] 15.8 Revisión de legibilidad del frontend: JSDoc en hooks y funciones complejas, nombres de componentes y props descriptivos, sin lógica en los componentes de presentación
+- [x] 15.9 Verificar que el `README.md` raíz explica el proyecto de forma que un developer externo pueda entenderlo, levantarlo y contribuir sin preguntar nada
