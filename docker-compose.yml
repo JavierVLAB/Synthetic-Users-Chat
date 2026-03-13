@@ -9,9 +9,11 @@
 #   docker-compose up                # Arranque normal
 #   docker-compose down              # Parar y eliminar contenedores
 #
-# El frontend proxea las llamadas al backend internamente vía Next.js rewrites.
-# El navegador llama a /api/* → Next.js server → backend:8000 (red Docker interna).
-# El backend NO necesita estar expuesto al exterior.
+# Ambos contenedores comparten la red externa webapps-net, lo que permite:
+#   - Que el nginx del servidor alcance el frontend
+#   - Que el frontend alcance al backend por nombre de contenedor (red compartida)
+# El frontend proxea las llamadas al backend vía Next.js rewrites:
+#   navegador → /api/* → Next.js server → backend:8000
 
 services:
   backend:
@@ -36,7 +38,7 @@ services:
       retries: 3
     restart: always
     networks:
-      - moeve-network
+      - webapps-net
 
   frontend:
     build:
@@ -56,14 +58,11 @@ services:
         condition: service_healthy
     restart: always
     networks:
-      - moeve-network
       - webapps-net
 
 volumes:
   backend-data:
 
 networks:
-  moeve-network:
-    driver: bridge
   webapps-net:
     external: true
