@@ -19,7 +19,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: moeve-backend
+    container_name: synthetic-user-chat-backend
     ports:
       - "127.0.0.1:8010:8000"
     env_file:
@@ -45,7 +45,7 @@ services:
       dockerfile: frontend/Dockerfile
       args:
         - NEXT_PUBLIC_API_URL=http://localhost:8010
-    container_name: moeve-frontend
+    container_name: synthetic-user-chat-frontend
     ports:
       - "3010:3000"
     depends_on:
