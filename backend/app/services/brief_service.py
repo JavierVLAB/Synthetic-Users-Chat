@@ -53,6 +53,8 @@ def list_briefs() -> list[dict[str, Any]]:
     for filename in sorted(os.listdir(BRIEFS_DIR)):
         if not (filename.endswith(".yaml") or filename.endswith(".json")):
             continue
+        if filename.startswith("_"):
+            continue
 
         brief_id = os.path.splitext(filename)[0]
         filepath = os.path.join(BRIEFS_DIR, filename)

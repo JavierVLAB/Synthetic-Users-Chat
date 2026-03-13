@@ -88,8 +88,10 @@ def list_behavior_profiles() -> list[dict[str, Any]]:
         return []
 
     for filename in sorted(os.listdir(PROFILES_DIR)):
-        # Ignorar el perfil fijo de empleado y archivos no YAML/JSON
+        # Ignorar el perfil fijo de empleado, plantillas (_) y archivos no YAML/JSON
         if filename == EMPLOYEE_PROFILE_FILENAME:
+            continue
+        if filename.startswith("_"):
             continue
         if not (filename.endswith(".yaml") or filename.endswith(".json")):
             continue
