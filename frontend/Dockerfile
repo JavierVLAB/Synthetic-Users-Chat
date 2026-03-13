@@ -3,17 +3,24 @@
 # Contexto de build: raíz del monorepo (context: .)
 # Construcción en dos etapas: build → runner ligero con standalone output.
 #
-# NEXT_PUBLIC_API_URL se inyecta como ARG en tiempo de build porque Next.js
-# lo incrusta en el bundle del navegador. El navegador llama al backend
-# directamente (no pasa por el contenedor frontend), por eso usa localhost:8000.
+# NEXT_PUBLIC_API_URL: URL del backend vista desde el navegador.
+#   - En Docker: "/api" — el navegador llama a /api/* y Next.js lo proxea internamente.
+#   - En local sin Docker: "http://localhost:8000" — llamada directa al backend.
+#
+# BACKEND_URL: URL interna del backend dentro de la red Docker.
+#   Solo la usa el servidor de Next.js para reenviar las llamadas de /api/*.
+#   Nunca llega al navegador.
 
 # ── Etapa 1: construcción ───────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ARG NEXT_PUBLIC_API_URL=/api
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+ARG BACKEND_URL=http://localhost:8000
+ENV BACKEND_URL=$BACKEND_URL
 
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci

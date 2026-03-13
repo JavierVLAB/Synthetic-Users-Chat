@@ -9,10 +9,9 @@
 #   docker-compose up                # Arranque normal
 #   docker-compose down              # Parar y eliminar contenedores
 #
-# NEXT_PUBLIC_API_URL se incrusta en el bundle del navegador en tiempo de build.
-# El navegador llama al backend desde fuera de Docker, por eso usa localhost:8000.
-# Para producción, sobreescribe el ARG con el dominio real:
-#   docker-compose build --build-arg NEXT_PUBLIC_API_URL=https://api.tudominio.com
+# El frontend proxea las llamadas al backend internamente vía Next.js rewrites.
+# El navegador llama a /api/* → Next.js server → backend:8000 (red Docker interna).
+# El backend NO necesita estar expuesto al exterior.
 
 services:
   backend:
@@ -44,7 +43,8 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=http://localhost:8010
+        - NEXT_PUBLIC_API_URL=/api
+        - BACKEND_URL=http://synthetic-user-chat-backend:8000
     container_name: synthetic-user-chat-frontend
     ports:
       - "3010:3000"
