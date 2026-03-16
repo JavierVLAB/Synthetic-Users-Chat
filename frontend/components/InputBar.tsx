@@ -11,6 +11,7 @@
 import { useState, useRef } from "react";
 import Button from "@/components/ui/Button";
 import QuestionnaireUpload from "./QuestionnaireUpload";
+import SendIcon from "@mui/icons-material/Send";
 
 interface InputBarProps {
   onSend: (message: string) => Promise<void>;
@@ -66,14 +67,17 @@ export default function InputBar({
           onInput={handleInput}
           placeholder={
             disabled
-              ? "Inicia una sesión para comenzar a chatear…"
-              : "Escribe una pregunta… (Enter para enviar, Shift+Enter para nueva línea)"
+              ? "Inicia el chat para escribir…"
+              : "Escribe una pregunta…"
           }
           disabled={disabled || isLoading}
           rows={1}
-          className="flex-1 resize-none bg-transparent text-base font-light text-primary-dark placeholder:text-text-secondary
-            focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed
-            min-h-[40px] max-h-[160px] py-1 leading-relaxed"
+          className={[
+            "flex-1 resize-none bg-transparent text-base font-light text-primary-dark placeholder:text-text-secondary",
+            "focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed",
+            "min-h-[40px] max-h-[160px] py-1 leading-relaxed",
+            disabled ? "text-center" : "",
+          ].join(" ")}
           aria-label="Mensaje al usuario sintético"
         />
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -89,13 +93,10 @@ export default function InputBar({
             onClick={handleSend}
             aria-label="Enviar mensaje"
           >
-            Enviar
+            <SendIcon fontSize="small" /> Enviar
           </Button>
         </div>
       </div>
-      <p className="text-xs text-text-secondary mt-1 text-right pr-1">
-        Enter para enviar · Shift+Enter para nueva línea
-      </p>
     </div>
   );
 }

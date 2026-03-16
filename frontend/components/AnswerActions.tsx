@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckIcon from "@mui/icons-material/Check";
 
 interface AnswerActionsProps {
   content: string;
@@ -22,7 +24,7 @@ export default function AnswerActions({ content }: AnswerActionsProps) {
         className="text-xs text-text-secondary hover:text-primary-dark transition-colors px-2 py-1 rounded hover:bg-conv-bg"
         title="Copiar respuesta"
       >
-        {copied ? "✓ Copiado" : "Copiar"}
+        {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
       </button>
     </div>
   );

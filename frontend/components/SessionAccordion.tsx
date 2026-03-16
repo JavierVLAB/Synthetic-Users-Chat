@@ -5,6 +5,8 @@ import Button from "@/components/ui/Button";
 import ProfileSelect from "./ProfileSelect";
 import BriefSelect from "./BriefSelect";
 import { ActiveSession } from "@/context/SessionContext";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import StopIcon from "@mui/icons-material/Stop";
 
 interface SessionAccordionProps {
   session: ActiveSession | null;
@@ -56,7 +58,7 @@ export default function SessionAccordion({
           </span>
         </div>
         <Button variant="danger" size="sm" onClick={onRequestClose}>
-          Cerrar sesión
+          <StopIcon fontSize="small" /> Cerrar sesión
         </Button>
       </div>
     );
@@ -113,7 +115,7 @@ export default function SessionAccordion({
             disabled={!canStart}
             onClick={handleStart}
           >
-            Iniciar sesión
+            <PlayArrowIcon fontSize="small" /> Iniciar chat
           </Button>
         </div>
       </div>

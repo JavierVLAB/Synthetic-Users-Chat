@@ -28,10 +28,10 @@ export default function Header() {
             </svg>
           </div>
           {/* Nombre y Rol */}
-          <div className="flex flex-col w-[170px]">
+          {/*<div className="flex flex-col w-[170px]">
             <span className="text-[#004656] text-sm font-bold leading-[22px] whitespace-nowrap">Nombre Apellido Apellido</span>
             <span className="text-[#004656] text-sm font-normal leading-[22px]">Rol</span>
-          </div>
+          </div>*/}
           {/* Flecha dropdown */}
           <button className="w-8 h-8 flex items-center justify-center">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

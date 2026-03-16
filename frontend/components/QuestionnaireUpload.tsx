@@ -9,6 +9,7 @@
 
 import { useRef, useState } from "react";
 import Button from "@/components/ui/Button";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 interface QuestionnaireUploadProps {
   onSubmit: (questions: string[]) => Promise<void>;
@@ -74,7 +75,7 @@ export default function QuestionnaireUpload({
         disabled={disabled}
         title="Subir cuestionario (.txt)"
       >
-        {fileName ? `📋 ${fileName}` : "📋 Cuestionario"}
+        <AttachFileIcon fontSize="small" />
       </Button>
       {error && <span className="text-xs text-error">{error}</span>}
     </div>

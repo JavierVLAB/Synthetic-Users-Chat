@@ -17,7 +17,6 @@ export default function BriefSelect({
 }: BriefSelectProps) {
   const [briefs, setBriefs] = useState<BriefSummary[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchBriefs()
       .then(setBriefs)

@@ -41,10 +41,10 @@ export default function CloseSessionModal({
       {/* Panel */}
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
         {/* Header */}
-        <div className="bg-primary-dark px-6 py-4">
+        <div className="px-6 py-4 border-b border-split">
           <h2
             id="close-modal-title"
-            className="text-lg font-medium text-white"
+            className="text-base font-medium text-primary-dark"
           >
             ¿Cerrar la sesión?
           </h2>
@@ -72,7 +72,7 @@ export default function CloseSessionModal({
               target="_blank"
               rel="noopener noreferrer"
               className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg
-                bg-accent text-white text-sm font-medium hover:brightness-90 transition-all"
+                bg-primary-btn text-primary-dark text-sm font-medium hover:brightness-95 transition-all"
             >
               ⬇ PDF
             </a>
@@ -90,7 +90,7 @@ export default function CloseSessionModal({
             loading={isLoading}
             onClick={onConfirm}
           >
-            Cerrar sesión
+            Cerrar chat
           </Button>
         </div>
       </div>

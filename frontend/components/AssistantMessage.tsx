@@ -9,6 +9,7 @@
 import ReactMarkdown from "react-markdown";
 import { ChatMessage } from "@/services/api";
 import AnswerActions from "./AnswerActions";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 interface AssistantMessageProps {
   message: ChatMessage;
@@ -34,7 +35,8 @@ export default function AssistantMessage({ message }: AssistantMessageProps) {
               </div>
             </div>
             <div className="flex items-center justify-between mt-1 px-1">
-              <p className="text-xs text-text-secondary">
+              <p className="inline-flex items-center gap-0.5 text-xs text-text-secondary">
+                <AccessTimeIcon fontSize="inherit" />
                 {new Date(message.timestamp).toLocaleTimeString("es-ES", {
                   hour: "2-digit",
                   minute: "2-digit",
