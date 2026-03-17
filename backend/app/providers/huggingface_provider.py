@@ -12,7 +12,7 @@ import logging
 import httpx
 
 from app.config import settings
-from app.providers.base import LLMProvider
+from app.providers.base import ChatResult, LLMProvider
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class HuggingFaceProvider(LLMProvider):
         # pero la API solo acepta el nombre del modelo sin ese sufijo.
         self.model = settings.hf_model.split(":")[0]
 
-    async def chat(self, messages: list[dict], system_prompt: str) -> str:
+    async def chat(self, messages: list[dict], system_prompt: str) -> ChatResult:
         """
         Envía la conversación al router de HuggingFace y devuelve la respuesta.
 
@@ -69,4 +69,4 @@ class HuggingFaceProvider(LLMProvider):
             response.raise_for_status()
 
         data = response.json()
-        return data["choices"][0]["message"]["content"]
+        return ChatResult(response=data["choices"][0]["message"]["content"], usage=None)

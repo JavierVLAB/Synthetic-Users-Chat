@@ -62,6 +62,18 @@ async def init_database() -> None:
             logger.info("Migración aplicada: columna department_id añadida a sessions.")
         except Exception:
             pass  # La columna ya existe — ignorar
+        # Migración: añadir columnas de debug a messages (seguro ejecutar varias veces)
+        for col_def in (
+            "system_prompt TEXT",
+            "messages_sent TEXT",
+            "prompt_tokens INTEGER",
+            "completion_tokens INTEGER",
+            "total_tokens INTEGER",
+        ):
+            try:
+                await db.execute(f"ALTER TABLE messages ADD COLUMN {col_def};")
+            except Exception:
+                pass  # La columna ya existe — ignorar
         await db.commit()
 
     logger.info("Base de datos inicializada correctamente.")

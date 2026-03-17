@@ -14,6 +14,7 @@ Endpoints:
   GET    /sessions/{id}/pdf            — descargar PDF
 """
 
+import json
 import logging
 import uuid
 from typing import Optional
@@ -30,6 +31,8 @@ from app.models.session import (
     ChatRequest,
     ChatResponse,
     CreateSessionRequest,
+    PromptOverrides,
+    PromptSections,
     SessionListItem,
     SessionResponse,
 )
@@ -95,38 +98,50 @@ def _enrich_session(session: dict) -> dict:
     return {**session, "profile_name": profile_name, "brief_name": brief_name, "department_name": dept_name}
 
 
-async def build_system_prompt_for_session(session: dict) -> str:
+async def build_system_prompt_for_session(
+    session: dict,
+    overrides: Optional[PromptOverrides] = None,
+) -> tuple[str, PromptSections]:
     """
     Construye el system prompt completo para una sesión cargando sus perfiles y brief.
 
     Args:
         session: Datos de la sesión (profile_id, brief_id, department_id).
+        overrides: Overrides opcionales para sustituir el texto de cada sección.
 
     Returns:
-        System prompt interpolado con los perfiles, brief y departamento.
+        Tupla (system_prompt, sections) con el prompt interpolado y los textos resueltos.
 
     Raises:
         HTTPException(500): Si no se pueden cargar los perfiles o el brief.
     """
     employee_text = profile_service.load_employee_profile()
 
-    behavior_text = profile_service.get_behavior_profile_as_text(session["profile_id"])
+    behavior_text = (overrides and overrides.profile_text) or profile_service.get_behavior_profile_as_text(session["profile_id"])
     if not behavior_text:
         raise HTTPException(status_code=500, detail=f"Profile '{session['profile_id']}' not found")
 
-    brief_text = brief_service.get_brief_as_text(session["brief_id"])
+    brief_text = (overrides and overrides.brief_text) or brief_service.get_brief_as_text(session["brief_id"])
     if not brief_text:
         raise HTTPException(status_code=500, detail=f"Brief '{session['brief_id']}' not found")
 
     department_text = None
-    if session.get("department_id"):
+    if overrides and overrides.department_text is not None:
+        department_text = overrides.department_text
+    elif session.get("department_id"):
         try:
             from app.services import department_service
             department_text = department_service.get_department_as_text(session["department_id"])
         except Exception:
             pass
 
-    return llm_service.build_system_prompt(employee_text, behavior_text, brief_text, department_text)
+    system_prompt = llm_service.build_system_prompt(employee_text, behavior_text, brief_text, department_text)
+    sections = PromptSections(
+        profile_text=behavior_text,
+        brief_text=brief_text,
+        department_text=department_text,
+    )
+    return system_prompt, sections
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
@@ -259,25 +274,40 @@ async def send_message(
 
     # Recuperar historial y construir contexto para el LLM
     all_messages = await queries.get_messages(session_id)
-    system_prompt = await build_system_prompt_for_session(session)
+    system_prompt, sections = await build_system_prompt_for_session(session, body.overrides)
 
     # Convertir al formato que espera el LLM (solo role y content)
     llm_messages = [{"role": m["role"], "content": m["content"]} for m in all_messages]
 
+    # Aplicar ventana deslizante para saber exactamente qué se envió al LLM
+    from app.services.llm_service import apply_context_window
+    messages_sent = apply_context_window(llm_messages)
+
     # Generar respuesta del usuario sintético
-    response_text = await llm_service.generate_response(
+    chat_result = await llm_service.generate_response(
         messages=llm_messages,
         provider_name=session["llm_provider"],
         system_prompt=system_prompt,
     )
 
-    # Guardar y devolver la respuesta
-    assistant_message = await queries.save_message(session_id, "assistant", response_text)
+    # Guardar y devolver la respuesta con datos de debug
+    assistant_message = await queries.save_message(
+        session_id, "assistant", chat_result.response,
+        system_prompt=system_prompt,
+        messages_sent=json.dumps(messages_sent),
+        prompt_tokens=chat_result.usage.prompt_tokens if chat_result.usage else None,
+        completion_tokens=chat_result.usage.completion_tokens if chat_result.usage else None,
+        total_tokens=chat_result.usage.total_tokens if chat_result.usage else None,
+    )
 
     return ChatResponse(
         session_id=session_id,
         user_message=user_message,
         assistant_message=assistant_message,
+        system_prompt=system_prompt,
+        usage=chat_result.usage,
+        messages_sent=messages_sent,
+        sections=sections,
     )
 
 
@@ -302,18 +332,18 @@ async def send_questionnaire(
 
     # Recuperar historial (incluye ya el mensaje de cuestionario recién guardado)
     all_messages = await queries.get_messages(session_id)
-    system_prompt = await build_system_prompt_for_session(session)
+    system_prompt, _ = await build_system_prompt_for_session(session)
 
     llm_messages = [{"role": m["role"], "content": m["content"]} for m in all_messages]
 
     # Generar respuesta
-    response_text = await llm_service.generate_response(
+    chat_result = await llm_service.generate_response(
         messages=llm_messages,
         provider_name=session["llm_provider"],
         system_prompt=system_prompt,
     )
 
-    assistant_message = await queries.save_message(session_id, "assistant", response_text)
+    assistant_message = await queries.save_message(session_id, "assistant", chat_result.response)
 
     return QuestionnaireResponse(
         session_id=session_id,

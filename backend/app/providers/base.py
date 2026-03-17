@@ -7,6 +7,18 @@ ni le importa qué proveedor está usando por debajo.
 """
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Optional
+
+from app.models.session import TokenUsage
+
+
+@dataclass
+class ChatResult:
+    """Resultado de una llamada al LLM: respuesta y uso de tokens."""
+
+    response: str
+    usage: Optional[TokenUsage] = None
 
 
 class LLMProvider(ABC):
@@ -14,11 +26,11 @@ class LLMProvider(ABC):
     Interfaz abstracta que deben implementar todos los proveedores LLM.
 
     El único método requerido es `chat`, que recibe el historial de mensajes
-    y el system prompt, y devuelve la respuesta del modelo como string.
+    y el system prompt, y devuelve un ChatResult con la respuesta y el uso de tokens.
     """
 
     @abstractmethod
-    async def chat(self, messages: list[dict], system_prompt: str) -> str:
+    async def chat(self, messages: list[dict], system_prompt: str) -> ChatResult:
         """
         Envía una conversación al LLM y devuelve la respuesta.
 

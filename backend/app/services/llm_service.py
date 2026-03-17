@@ -20,7 +20,7 @@ import yaml
 from fastapi import HTTPException
 
 from app.config import settings
-from app.providers.base import LLMProvider
+from app.providers.base import ChatResult, LLMProvider
 from app.providers.openai_provider import OpenAIProvider
 from app.providers.anthropic_provider import AnthropicProvider
 from app.providers.ollama_provider import OllamaProvider
@@ -187,7 +187,7 @@ async def generate_response(
     messages: list[dict],
     provider_name: str,
     system_prompt: str,
-) -> str:
+) -> ChatResult:
     """
     Genera una respuesta del LLM con manejo de errores.
 
@@ -201,7 +201,7 @@ async def generate_response(
         system_prompt: System prompt completo interpolado.
 
     Returns:
-        Texto de la respuesta generada.
+        ChatResult con la respuesta generada y el uso de tokens.
 
     Raises:
         HTTPException(502): Si hay error de conexión con el proveedor.
@@ -211,8 +211,8 @@ async def generate_response(
     windowed_messages = apply_context_window(messages)
 
     try:
-        response = await provider.chat(windowed_messages, system_prompt)
-        return response
+        result = await provider.chat(windowed_messages, system_prompt)
+        return result
 
     except httpx.TimeoutException as error:
         logger.error(f"Timeout del proveedor LLM '{provider_name}': {error}")

@@ -11,7 +11,8 @@ import httpx
 from openai import AsyncOpenAI, APIConnectionError, APITimeoutError
 
 from app.config import settings
-from app.providers.base import LLMProvider
+from app.models.session import TokenUsage
+from app.providers.base import ChatResult, LLMProvider
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class OpenAIProvider(LLMProvider):
         )
         self.model = "gpt-4o"
 
-    async def chat(self, messages: list[dict], system_prompt: str) -> str:
+    async def chat(self, messages: list[dict], system_prompt: str) -> ChatResult:
         """
         Envía la conversación a OpenAI y devuelve la respuesta del modelo.
 
@@ -45,13 +46,12 @@ class OpenAIProvider(LLMProvider):
             system_prompt: System prompt construido con perfiles y brief.
 
         Returns:
-            Texto de la respuesta generada por GPT-4.
+            ChatResult con el texto de la respuesta y el uso de tokens.
 
         Raises:
             APIConnectionError: Si no hay conexión con la API de OpenAI.
             APITimeoutError: Si la respuesta supera el timeout configurado.
         """
-        # El system prompt va como primer mensaje con role "system"
         full_messages = [{"role": "system", "content": system_prompt}] + messages
 
         logger.info(f"Enviando {len(messages)} mensajes a OpenAI ({self.model})")
@@ -61,4 +61,12 @@ class OpenAIProvider(LLMProvider):
             messages=full_messages,
         )
 
-        return response.choices[0].message.content
+        usage = None
+        if response.usage:
+            usage = TokenUsage(
+                prompt_tokens=response.usage.prompt_tokens,
+                completion_tokens=response.usage.completion_tokens,
+                total_tokens=response.usage.total_tokens,
+            )
+
+        return ChatResult(response=response.choices[0].message.content, usage=usage)

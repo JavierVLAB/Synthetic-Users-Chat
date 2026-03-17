@@ -17,8 +17,12 @@ import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
  *
  * La lista se refresca automáticamente cuando cambia la sesión activa.
  */
-export default function ConversationSidebar() {
-  const { session, isLoading, loadSession } = useSession();
+interface ConversationSidebarProps {
+  onNavigate?: () => void;
+}
+
+export default function ConversationSidebar({ onNavigate }: ConversationSidebarProps = {}) {
+  const { session, messages, isLoading, loadSession } = useSession();
   const [sessions, setSessions] = useState<SessionListItem[]>([]);
   const [loadingList, setLoadingList] = useState(true);
 
@@ -96,7 +100,7 @@ export default function ConversationSidebar() {
               key={s.session_id}
               type="button"
               disabled={isLoading}
-              onClick={() => loadSession(s.session_id)}
+              onClick={() => { loadSession(s.session_id); onNavigate?.(); }}
               className={[
                 "w-full text-left px-4 py-3 border-b border-split transition-colors",
                 "hover:bg-conv-bg focus:outline-none focus:bg-conv-bg",
@@ -146,7 +150,7 @@ export default function ConversationSidebar() {
                   {formatDate(s.created_at)}
                 </span>
                 <span className="text-xs text-text-secondary">
-                  {s.message_count} msg
+                  {isCurrent ? messages.length : s.message_count} msg
                 </span>
               </div>
             </button>

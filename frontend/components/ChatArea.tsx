@@ -2,11 +2,6 @@
 
 /**
  * ChatArea — área de conversación con scroll automático.
- *
- * Muestra el historial de mensajes, diferenciando visualmente los mensajes
- * del investigador (burbuja derecha) y del usuario sintético (burbuja izquierda).
- * Muestra AnimatedLoader mientras se espera la respuesta del LLM.
- * Hace scroll automático al último mensaje cuando llegan mensajes nuevos.
  */
 
 import { useEffect, useRef } from "react";
@@ -29,7 +24,7 @@ export default function ChatArea({ messages, isLoading }: ChatAreaProps) {
 
   if (messages.length === 0 && !isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-conv-bg rounded-xl border border-gray-100">
+      <div className="h-full flex items-center justify-center bg-conv-bg rounded-xl border border-gray-100">
         <div className="text-center text-text-secondary">
           <p className="text-lg mb-1">Conversación vacía</p>
           <p className="text-sm">Escribe un mensaje para comenzar la entrevista.</p>
@@ -39,15 +34,31 @@ export default function ChatArea({ messages, isLoading }: ChatAreaProps) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-conv-bg rounded-xl border border-gray-100 p-4">
+    <div className="h-full overflow-y-auto overflow-x-hidden bg-conv-bg rounded-xl border border-gray-100 p-4">
       <div className="flex flex-col gap-4">
-        {messages.map((msg, i) =>
-          msg.role === "user" ? (
-            <MessageBubble key={i} message={msg} />
-          ) : (
-            <AssistantMessage key={i} message={msg} />
-          )
-        )}
+        {messages.map((msg, i) => {
+          if (msg.role === "user") {
+            const next = messages[i + 1];
+            const debug = next?.system_prompt
+              ? {
+                  system_prompt: next.system_prompt,
+                  messages_sent: next.messages_sent
+                    ? (JSON.parse(next.messages_sent) as Array<{ role: string; content: string }>)
+                    : [],
+                  usage:
+                    next.prompt_tokens != null
+                      ? {
+                          prompt_tokens: next.prompt_tokens!,
+                          completion_tokens: next.completion_tokens!,
+                          total_tokens: next.total_tokens!,
+                        }
+                      : null,
+                }
+              : undefined;
+            return <MessageBubble key={i} message={msg} debug={debug} />;
+          }
+          return <AssistantMessage key={i} message={msg} />;
+        })}
 
         {isLoading && (
           <div className="flex justify-start">

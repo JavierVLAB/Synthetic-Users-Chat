@@ -3,9 +3,7 @@
 Interfaz conversacional principal de la aplicación. Pantalla única sin navegación lateral. El investigador configura la sesión en un accordion, chatea con el usuario sintético y cierra la sesión con opción de descarga de PDF.
 
 ---
-
 ## Requirements
-
 ### Requirement: Layout de pantalla única sin sidebar
 
 La aplicación SHALL renderizar un layout de columna centrada compuesto por: header fijo superior, accordion de configuración/sesión, área de conversación con scroll independiente, input bar fijo inferior y footer fijo. NO SHALL existir sidebar de navegación lateral en esta versión.
@@ -35,34 +33,33 @@ El header SHALL tener altura `64px`, fondo `#ffffff` y borde inferior `#9bcbe3` 
 ---
 
 ### Requirement: Accordion de configuración y resumen de sesión
-
 El sistema SHALL mostrar un accordion en la parte superior del área de contenido. Su comportamiento varía según el estado de la sesión.
 
-**Sin sesión activa:** el accordion SHALL estar expandido mostrando dos selectores (perfil de comportamiento y brief de producto) y el botón "Iniciar sesión".
+**Sin sesión activa:** el accordion SHALL estar expandido mostrando tres selectores (perfil de comportamiento, brief de producto y departamento opcional) y el botón "Iniciar sesión". Junto a cada selector SHALL aparecer un icono ⓘ que permite ver el contenido del ítem seleccionado.
 
-**Con sesión activa:** el accordion SHALL estar colapsado por defecto mostrando en su cabecera el resumen: "Perfil: [nombre] · Brief: [nombre] · LLM: [proveedor]", más el botón "Cerrar sesión". El investigador podrá expandirlo para ver el detalle pero no podrá cambiar los valores mid-sesión.
+**Con sesión activa (modo normal):** el accordion SHALL colapsar automáticamente mostrando en su cabecera el resumen: "Perfil: [nombre] · Brief: [nombre] · (Depto: [nombre] si aplica)", más el botón "Cerrar sesión".
+
+**Con sesión cargada en modo lectura (isViewMode=true):** el accordion SHALL mostrar la barra de resumen de sesión con badge "Solo lectura", los datos de la sesión, y el botón "Nueva sesión" que al pulsarse limpia el estado y vuelve al panel de configuración. NO SHALL aparecer el botón "Cerrar sesión" en modo lectura.
 
 #### Scenario: Accordion expandido sin sesión
 - **WHEN** no hay sesión activa
-- **THEN** el accordion SHALL estar abierto mostrando el selector de perfil, el selector de brief y el botón "Iniciar sesión" deshabilitado
+- **THEN** el accordion SHALL estar abierto mostrando el selector de perfil, el selector de brief, el selector de departamento (opcional) y el botón "Iniciar sesión" deshabilitado hasta que perfil y brief estén seleccionados
 
-#### Scenario: Accordion expandido sin sesión — layout inline
-- **WHEN** no hay sesión activa y el accordion está expandido
-- **THEN** el selector de perfil, el selector de brief y el botón "Iniciar sesión" SHALL estar en la misma fila horizontal, con el botón alineado al borde inferior de los selectores (no al centro del bloque label+select)
+#### Scenario: Botón Nueva sesión en modo lectura
+- **WHEN** `isViewMode=true` (sesión cerrada cargada desde historial)
+- **THEN** SHALL mostrarse el botón "Nueva sesión" en la barra de estado que al pulsarse llama a `closeSession()` y restablece el estado inicial
 
 #### Scenario: Accordion colapsado con sesión activa
 - **WHEN** el investigador inicia una sesión
 - **THEN** el accordion SHALL colapsar automáticamente y mostrar en su cabecera el resumen de la sesión activa
 
-#### Scenario: Expandir accordion durante sesión
-- **WHEN** el investigador hace click en el accordion durante una sesión activa
-- **THEN** SHALL expandirse mostrando el perfil, brief y LLM seleccionados, en modo solo lectura (sin posibilidad de cambio)
+#### Scenario: Botón Cerrar sesión solo en modo activo
+- **WHEN** hay una sesión activa (`isViewMode=false`)
+- **THEN** SHALL aparecer el botón "Cerrar sesión" en la cabecera; cuando `isViewMode=true` ese botón NO SHALL mostrarse
 
-#### Scenario: Botón Cerrar sesión en accordion
-- **WHEN** hay una sesión activa
-- **THEN** SHALL aparecer el botón "Cerrar sesión" en la cabecera del accordion, visible tanto en estado colapsado como expandido
-
----
+#### Scenario: Icono ⓘ junto a selectores
+- **WHEN** el accordion está expandido sin sesión activa
+- **THEN** cada selector SHALL mostrar un icono ⓘ que se activa cuando hay un ítem seleccionado
 
 ### Requirement: Selección de perfil de comportamiento
 
@@ -225,3 +222,20 @@ Todos los componentes SHALL usar los tokens de color y tipografía del sistema M
 #### Scenario: Bordes usando token split
 - **WHEN** cualquier componente con borde es visible (header, footer, accordion, input bar)
 - **THEN** el color de borde SHALL ser `#9bcbe3`, nunca colores genéricos de Tailwind como `gray-100` o `gray-200`
+
+### Requirement: Botón discreto de debug en la interfaz de conversación
+
+La interfaz SHALL incluir un botón de debug visible únicamente durante una sesión activa no en modo lectura. El botón SHALL usar el icono `BugReportIcon` (MUI), tener apariencia discreta (texto secundario, sin fondo) y posicionarse en el área de conversación (esquina superior derecha del área de chat o junto al input bar).
+
+#### Scenario: Botón visible con sesión activa
+- **WHEN** hay una sesión activa (`session !== null`) y no está en modo lectura (`isViewMode === false`)
+- **THEN** el botón de debug SHALL mostrarse con `BugReportIcon` y etiqueta "Debug" o solo icono con tooltip
+
+#### Scenario: Botón oculto sin sesión o en modo lectura
+- **WHEN** no hay sesión activa O `isViewMode === true`
+- **THEN** el botón de debug NO SHALL renderizarse en el DOM
+
+#### Scenario: Estado del prompt y tokens en la página
+- **WHEN** el backend responde a un mensaje con `system_prompt` y `usage`
+- **THEN** `page.tsx` SHALL almacenar `lastSystemPrompt` y `lastUsage` en estado local y pasarlos al `DebugPanel` como props
+

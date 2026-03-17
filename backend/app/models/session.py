@@ -10,6 +10,14 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+class TokenUsage(BaseModel):
+    """Conteo de tokens consumidos en un turno de conversación."""
+
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+
+
 class CreateSessionRequest(BaseModel):
     """Datos necesarios para iniciar una nueva sesión."""
 
@@ -58,10 +66,30 @@ class SessionListItem(BaseModel):
     status: str  # "active" | "closed"
 
 
+class PromptSections(BaseModel):
+    """Textos resueltos de las secciones que componen el system prompt."""
+
+    profile_text: str
+    brief_text: str
+    department_text: Optional[str] = None
+
+
+class PromptOverrides(BaseModel):
+    """Overrides opcionales por sesión para sustituir el texto de cada sección del prompt."""
+
+    profile_text: Optional[str] = None
+    brief_text: Optional[str] = None
+    department_text: Optional[str] = None
+
+
 class ChatRequest(BaseModel):
     """Mensaje enviado por el investigador al usuario sintético."""
 
     message: str = Field(..., min_length=1, description="Texto del mensaje del investigador")
+    overrides: Optional[PromptOverrides] = Field(
+        default=None,
+        description="Overrides opcionales para sustituir el texto de las secciones del prompt.",
+    )
 
 
 class ChatResponse(BaseModel):
@@ -70,3 +98,7 @@ class ChatResponse(BaseModel):
     session_id: str
     user_message: dict
     assistant_message: dict
+    system_prompt: str
+    usage: Optional[TokenUsage] = None
+    messages_sent: list[dict] = Field(default_factory=list)
+    sections: Optional[PromptSections] = None

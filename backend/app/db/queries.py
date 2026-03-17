@@ -138,7 +138,16 @@ async def close_session(session_id: str) -> None:
 # ── Messages ──────────────────────────────────────────────────────────────────
 
 
-async def save_message(session_id: str, role: str, content: str) -> dict:
+async def save_message(
+    session_id: str,
+    role: str,
+    content: str,
+    system_prompt: Optional[str] = None,
+    messages_sent: Optional[str] = None,
+    prompt_tokens: Optional[int] = None,
+    completion_tokens: Optional[int] = None,
+    total_tokens: Optional[int] = None,
+) -> dict:
     """
     Persiste un mensaje en la conversación.
 
@@ -146,6 +155,11 @@ async def save_message(session_id: str, role: str, content: str) -> dict:
         session_id: UUID de la sesión a la que pertenece el mensaje.
         role: Quién envió el mensaje — 'user' (investigador) o 'assistant' (usuario sintético).
         content: Texto completo del mensaje.
+        system_prompt: System prompt enviado al LLM en este turno (solo mensajes assistant).
+        messages_sent: JSON con los mensajes exactos enviados al LLM (ventana deslizante).
+        prompt_tokens: Tokens de entrada consumidos.
+        completion_tokens: Tokens de salida consumidos.
+        total_tokens: Total de tokens consumidos.
 
     Returns:
         Diccionario con los datos del mensaje guardado, incluyendo su id y timestamp.
@@ -155,10 +169,14 @@ async def save_message(session_id: str, role: str, content: str) -> dict:
     async with aiosqlite.connect(get_db_path()) as db:
         cursor = await db.execute(
             """
-            INSERT INTO messages (session_id, role, content, timestamp)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO messages (
+                session_id, role, content, timestamp,
+                system_prompt, messages_sent, prompt_tokens, completion_tokens, total_tokens
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (session_id, role, content, timestamp),
+            (session_id, role, content, timestamp,
+             system_prompt, messages_sent, prompt_tokens, completion_tokens, total_tokens),
         )
         await db.commit()
         message_id = cursor.lastrowid
@@ -169,6 +187,11 @@ async def save_message(session_id: str, role: str, content: str) -> dict:
         "role": role,
         "content": content,
         "timestamp": timestamp,
+        "system_prompt": system_prompt,
+        "messages_sent": messages_sent,
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": total_tokens,
     }
 
 

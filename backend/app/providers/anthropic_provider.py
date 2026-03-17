@@ -11,7 +11,8 @@ import logging
 from anthropic import AsyncAnthropic, APIConnectionError, APITimeoutError
 
 from app.config import settings
-from app.providers.base import LLMProvider
+from app.models.session import TokenUsage
+from app.providers.base import ChatResult, LLMProvider
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class AnthropicProvider(LLMProvider):
         )
         self.model = "claude-sonnet-4-6"
 
-    async def chat(self, messages: list[dict], system_prompt: str) -> str:
+    async def chat(self, messages: list[dict], system_prompt: str) -> ChatResult:
         """
         Envía la conversación a Anthropic y devuelve la respuesta del modelo.
 
@@ -45,7 +46,7 @@ class AnthropicProvider(LLMProvider):
             system_prompt: System prompt construido con perfiles y brief.
 
         Returns:
-            Texto de la respuesta generada por Claude.
+            ChatResult con el texto de la respuesta y el uso de tokens.
         """
         logger.info(f"Enviando {len(messages)} mensajes a Anthropic ({self.model})")
 
@@ -56,4 +57,14 @@ class AnthropicProvider(LLMProvider):
             messages=messages,
         )
 
-        return response.content[0].text
+        usage = None
+        if response.usage:
+            prompt_tokens = response.usage.input_tokens
+            completion_tokens = response.usage.output_tokens
+            usage = TokenUsage(
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=prompt_tokens + completion_tokens,
+            )
+
+        return ChatResult(response=response.content[0].text, usage=usage)

@@ -3,9 +3,7 @@
 Gestión de briefs de producto. Los briefs describen el producto digital que el usuario sintético evaluará. Son archivos de datos libres — extensibles sin tocar código.
 
 ---
-
 ## Requirements
-
 ### Requirement: Briefs de producto extensibles por archivos
 
 El sistema SHALL leer todos los archivos `.yaml` y `.json` presentes en `backend/data/briefs/` como briefs disponibles. Añadir un nuevo brief SHALL requerir únicamente añadir un archivo en ese directorio, sin modificar código.
@@ -75,3 +73,19 @@ El nombre del brief activo SHALL mostrarse en el acordeón de sesión de la UI d
 #### Scenario: Brief visible en panel de sesión
 - **WHEN** el investigador inicia una sesión con el brief "App Móvil de Moeve"
 - **THEN** el acordeón SHALL mostrar "Brief: App Móvil de Moeve" mientras dure la sesión
+
+### Requirement: Campo datos_de_uso en briefs para datos reales
+Los briefs SHALL soportar un campo opcional `datos_de_uso` de texto libre donde el investigador puede incluir métricas reales de adopción, patrones de uso, NPS, frecuencia de uso u otros datos cuantitativos. Este campo SHALL inyectarse en el system prompt del LLM como referencia factual que la IA debe priorizar sobre cualquier dato inventado.
+
+#### Scenario: Brief con datos_de_uso influye en el prompt
+- **WHEN** un brief contiene el campo `datos_de_uso` con contenido
+- **THEN** el system prompt SHALL incluir una sección explícita con esos datos, indicando que son reales y deben usarse como referencia
+
+#### Scenario: Brief sin datos_de_uso no añade sección
+- **WHEN** un brief no contiene el campo `datos_de_uso` o está vacío
+- **THEN** el system prompt NO SHALL incluir ninguna sección de datos de uso
+
+#### Scenario: Campo datos_de_uso visible y editable en ContentViewerModal
+- **WHEN** el usuario abre el ContentViewerModal de un brief
+- **THEN** SHALL mostrarse el campo `datos_de_uso` junto al resto del contenido, editable si admin token disponible
+

@@ -153,7 +153,7 @@ export interface SessionContextValue extends SessionState {
    * Envía un mensaje del investigador y recibe la respuesta del LLM.
    * Añade ambos mensajes al historial.
    */
-  sendMessage: (message: string) => Promise<void>;
+  sendMessage: (message: string, overrides?: Partial<import("@/services/api").PromptSections>) => Promise<import("@/services/api").ChatResponse | null>;
 
   /**
    * Envía un cuestionario (lista de preguntas) al LLM.
@@ -174,11 +174,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   /** Añade un mensaje al historial con timestamp actual. */
   const addMessage = useCallback(
-    (role: "user" | "assistant", content: string) => {
+    (role: "user" | "assistant", content: string, debug?: Partial<Pick<ChatMessage, "system_prompt" | "messages_sent" | "prompt_tokens" | "completion_tokens" | "total_tokens">>) => {
       const message: ChatMessage = {
         role,
         content,
         timestamp: new Date().toISOString(),
+        ...debug,
       };
       dispatch({ type: "MESSAGE_ADDED", payload: message });
     },
@@ -242,6 +243,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         role: m.role as "user" | "assistant",
         content: m.content,
         timestamp: m.timestamp,
+        system_prompt: m.system_prompt ?? undefined,
+        messages_sent: m.messages_sent ?? undefined,
+        prompt_tokens: m.prompt_tokens ?? undefined,
+        completion_tokens: m.completion_tokens ?? undefined,
+        total_tokens: m.total_tokens ?? undefined,
       }));
 
       dispatch({
@@ -269,21 +275,29 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, [state.session]);
 
   const sendMessage = useCallback(
-    async (message: string) => {
-      if (!state.session || state.isLoading) return;
+    async (message: string, overrides?: Partial<import("@/services/api").PromptSections>) => {
+      if (!state.session || state.isLoading) return null;
 
       addMessage("user", message);
       dispatch({ type: "LOADING_START" });
 
       try {
-        const response = await sendChatMessage(state.session.sessionId, message);
-        addMessage("assistant", response.assistant_message.content);
+        const response = await sendChatMessage(state.session.sessionId, message, overrides);
+        addMessage("assistant", response.assistant_message.content, {
+          system_prompt: response.system_prompt,
+          messages_sent: JSON.stringify(response.messages_sent),
+          prompt_tokens: response.usage?.prompt_tokens ?? null,
+          completion_tokens: response.usage?.completion_tokens ?? null,
+          total_tokens: response.usage?.total_tokens ?? null,
+        });
+        return response;
       } catch {
         dispatch({
           type: "ERROR_SET",
           payload:
             "Error al contactar con el modelo de IA. Inténtalo de nuevo.",
         });
+        return null;
       } finally {
         dispatch({ type: "LOADING_END" });
       }

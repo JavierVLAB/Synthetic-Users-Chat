@@ -89,6 +89,28 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string;
+  /** Debug: system prompt enviado al LLM en este turno (solo mensajes assistant). */
+  system_prompt?: string | null;
+  /** Debug: mensajes exactos enviados al LLM, serializado como JSON string. */
+  messages_sent?: string | null;
+  /** Debug: tokens consumidos. */
+  prompt_tokens?: number | null;
+  completion_tokens?: number | null;
+  total_tokens?: number | null;
+}
+
+/** Uso de tokens de una llamada al LLM. */
+export interface TokenUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
+/** Textos resueltos de las secciones del system prompt. */
+export interface PromptSections {
+  profile_text: string;
+  brief_text: string;
+  department_text?: string;
 }
 
 /** Respuesta del endpoint de chat. */
@@ -96,6 +118,10 @@ export interface ChatResponse {
   session_id: string;
   user_message: ChatMessage;
   assistant_message: ChatMessage;
+  system_prompt: string;
+  usage: TokenUsage | null;
+  messages_sent: Array<{ role: string; content: string }>;
+  sections: PromptSections | null;
 }
 
 /** Respuesta del endpoint de cuestionario. */
@@ -155,11 +181,12 @@ export async function createSession(
  */
 export async function sendChatMessage(
   sessionId: string,
-  message: string
+  message: string,
+  overrides?: Partial<PromptSections>
 ): Promise<ChatResponse> {
   const { data } = await api.post<ChatResponse>(
     `/sessions/${sessionId}/chat`,
-    { message }
+    { message, ...(overrides ? { overrides } : {}) }
   );
   return data;
 }

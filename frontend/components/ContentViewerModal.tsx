@@ -89,7 +89,7 @@ export default function ContentViewerModal({
 
           return (
             <div key={key}>
-              <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary mb-1">
+              <p className="text-xs font-semibold tracking-wide text-text-secondary mb-1">
                 {label}
               </p>
               <p className="text-sm text-text-primary whitespace-pre-wrap leading-relaxed">

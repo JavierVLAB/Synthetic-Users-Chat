@@ -11,7 +11,8 @@ import logging
 import httpx
 
 from app.config import settings
-from app.providers.base import LLMProvider
+from app.models.session import TokenUsage
+from app.providers.base import ChatResult, LLMProvider
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class OllamaProvider(LLMProvider):
         self.base_url = settings.ollama_base_url.rstrip("/")
         self.model = settings.ollama_model
 
-    async def chat(self, messages: list[dict], system_prompt: str) -> str:
+    async def chat(self, messages: list[dict], system_prompt: str) -> ChatResult:
         """
         Envía la conversación al servidor Ollama y devuelve la respuesta.
 
@@ -62,4 +63,13 @@ class OllamaProvider(LLMProvider):
             response.raise_for_status()
 
         data = response.json()
-        return data["message"]["content"]
+        usage = None
+        prompt_tokens = data.get("prompt_eval_count")
+        completion_tokens = data.get("eval_count")
+        if prompt_tokens is not None and completion_tokens is not None:
+            usage = TokenUsage(
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=prompt_tokens + completion_tokens,
+            )
+        return ChatResult(response=data["message"]["content"], usage=usage)
