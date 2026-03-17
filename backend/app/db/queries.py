@@ -24,6 +24,7 @@ async def create_session(
     profile_id: str,
     brief_id: str,
     llm_provider: str,
+    department_id: Optional[str] = None,
 ) -> dict:
     """
     Inserta una nueva sesión en la base de datos.
@@ -33,6 +34,7 @@ async def create_session(
         profile_id: Identificador del perfil de comportamiento seleccionado.
         brief_id: Identificador del brief de producto seleccionado.
         llm_provider: Proveedor LLM a usar en esta sesión (openai, anthropic, ollama).
+        department_id: Identificador del departamento (opcional).
 
     Returns:
         Diccionario con los datos de la sesión recién creada.
@@ -42,18 +44,19 @@ async def create_session(
     async with aiosqlite.connect(get_db_path()) as db:
         await db.execute(
             """
-            INSERT INTO sessions (session_id, profile_id, brief_id, llm_provider, created_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO sessions (session_id, profile_id, brief_id, llm_provider, created_at, department_id)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (session_id, profile_id, brief_id, llm_provider, created_at),
+            (session_id, profile_id, brief_id, llm_provider, created_at, department_id),
         )
         await db.commit()
 
-    logger.info(f"Sesión creada: {session_id} (perfil={profile_id}, brief={brief_id})")
+    logger.info(f"Sesión creada: {session_id} (perfil={profile_id}, brief={brief_id}, dept={department_id})")
     return {
         "session_id": session_id,
         "profile_id": profile_id,
         "brief_id": brief_id,
+        "department_id": department_id,
         "llm_provider": llm_provider,
         "created_at": created_at,
         "closed_at": None,
@@ -79,6 +82,38 @@ async def get_session(session_id: str) -> Optional[dict]:
             row = await cursor.fetchone()
 
     return dict(row) if row else None
+
+
+async def list_sessions() -> list[dict]:
+    """
+    Lista todas las sesiones ordenadas por fecha de creación descendente.
+    Incluye el conteo de mensajes por sesión.
+
+    Returns:
+        Lista de diccionarios con metadatos de sesión y message_count.
+    """
+    async with aiosqlite.connect(get_db_path()) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            """
+            SELECT
+                s.session_id,
+                s.profile_id,
+                s.brief_id,
+                s.department_id,
+                s.llm_provider,
+                s.created_at,
+                s.closed_at,
+                COUNT(m.id) AS message_count
+            FROM sessions s
+            LEFT JOIN messages m ON s.session_id = m.session_id
+            GROUP BY s.session_id
+            ORDER BY s.created_at DESC
+            """
+        ) as cursor:
+            rows = await cursor.fetchall()
+
+    return [dict(row) for row in rows]
 
 
 async def close_session(session_id: str) -> None:

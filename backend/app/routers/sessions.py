@@ -5,6 +5,7 @@ Gestiona el ciclo de vida completo de una sesión de investigación:
 creación, conversación, cuestionarios, generación de PDF y cierre.
 
 Endpoints:
+  GET    /sessions                     — listar todas las sesiones (historial)
   POST   /sessions                     — crear sesión
   GET    /sessions/{id}                — estado y historial
   DELETE /sessions/{id}                — cerrar sesión
@@ -25,7 +26,13 @@ from slowapi.util import get_remote_address
 from app.config import settings
 from app.db import queries
 from app.models.questionnaire import QuestionnaireRequest, QuestionnaireResponse
-from app.models.session import ChatRequest, ChatResponse, CreateSessionRequest, SessionResponse
+from app.models.session import (
+    ChatRequest,
+    ChatResponse,
+    CreateSessionRequest,
+    SessionListItem,
+    SessionResponse,
+)
 from app.services import brief_service, llm_service, pdf_service, profile_service
 
 logger = logging.getLogger(__name__)
@@ -59,15 +66,44 @@ async def get_active_session(session_id: str) -> dict:
     return session
 
 
+def _enrich_session(session: dict) -> dict:
+    """
+    Añade los nombres legibles de perfil, brief y departamento a los datos de sesión.
+
+    Args:
+        session: Diccionario de sesión con IDs.
+
+    Returns:
+        Diccionario enriquecido con campos *_name.
+    """
+    profile = profile_service.get_behavior_profile(session["profile_id"])
+    brief = brief_service.get_brief(session["brief_id"])
+
+    profile_name = profile["content"].get("name", session["profile_id"]) if profile else session["profile_id"]
+    brief_name = brief["content"].get("name", session["brief_id"]) if brief else session["brief_id"]
+
+    dept_name = None
+    if session.get("department_id"):
+        try:
+            from app.services import department_service
+            dept = department_service.get_department(session["department_id"])
+            if dept:
+                dept_name = dept["content"].get("name", session["department_id"])
+        except Exception:
+            pass
+
+    return {**session, "profile_name": profile_name, "brief_name": brief_name, "department_name": dept_name}
+
+
 async def build_system_prompt_for_session(session: dict) -> str:
     """
     Construye el system prompt completo para una sesión cargando sus perfiles y brief.
 
     Args:
-        session: Datos de la sesión (profile_id, brief_id).
+        session: Datos de la sesión (profile_id, brief_id, department_id).
 
     Returns:
-        System prompt interpolado con los perfiles y el brief.
+        System prompt interpolado con los perfiles, brief y departamento.
 
     Raises:
         HTTPException(500): Si no se pueden cargar los perfiles o el brief.
@@ -82,10 +118,48 @@ async def build_system_prompt_for_session(session: dict) -> str:
     if not brief_text:
         raise HTTPException(status_code=500, detail=f"Brief '{session['brief_id']}' not found")
 
-    return llm_service.build_system_prompt(employee_text, behavior_text, brief_text)
+    department_text = None
+    if session.get("department_id"):
+        try:
+            from app.services import department_service
+            department_text = department_service.get_department_as_text(session["department_id"])
+        except Exception:
+            pass
+
+    return llm_service.build_system_prompt(employee_text, behavior_text, brief_text, department_text)
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
+
+
+@router.get("", response_model=list[SessionListItem])
+async def list_all_sessions() -> list[SessionListItem]:
+    """
+    Lista todas las sesiones de investigación con datos enriquecidos.
+
+    Usada por el sidebar del historial de conversaciones. Devuelve sesiones
+    ordenadas de más reciente a más antigua, con nombre legible de perfil,
+    brief y departamento, y conteo de mensajes.
+    """
+    raw_sessions = await queries.list_sessions()
+    result = []
+    for s in raw_sessions:
+        enriched = _enrich_session(s)
+        result.append(SessionListItem(
+            session_id=enriched["session_id"],
+            profile_id=enriched["profile_id"],
+            profile_name=enriched.get("profile_name") or enriched["profile_id"],
+            brief_id=enriched["brief_id"],
+            brief_name=enriched.get("brief_name") or enriched["brief_id"],
+            department_id=enriched.get("department_id"),
+            department_name=enriched.get("department_name"),
+            llm_provider=enriched["llm_provider"],
+            created_at=enriched["created_at"],
+            closed_at=enriched.get("closed_at"),
+            message_count=enriched.get("message_count", 0),
+            status="closed" if enriched.get("closed_at") else "active",
+        ))
+    return result
 
 
 @router.post("", response_model=SessionResponse, status_code=201)
@@ -94,7 +168,7 @@ async def create_session(request: Request, body: CreateSessionRequest) -> Sessio
     """
     Crea una nueva sesión de investigación.
 
-    Genera un UUID único, verifica que el perfil y el brief existen,
+    Genera un UUID único, verifica que el perfil, brief y departamento existen,
     y persiste la sesión en la base de datos.
     """
     # Verificar que el perfil existe antes de crear la sesión
@@ -105,6 +179,17 @@ async def create_session(request: Request, body: CreateSessionRequest) -> Sessio
     if not brief_service.get_brief(body.brief_id):
         raise HTTPException(status_code=404, detail="Brief not found")
 
+    # Verificar el departamento si se especifica (es opcional)
+    if body.department_id:
+        try:
+            from app.services import department_service
+            if not department_service.get_department(body.department_id):
+                raise HTTPException(status_code=404, detail="Department not found")
+        except HTTPException:
+            raise
+        except Exception:
+            raise HTTPException(status_code=404, detail="Department not found")
+
     # El proveedor LLM puede venir del body o del entorno
     provider = body.llm_provider or settings.llm_provider
 
@@ -112,9 +197,12 @@ async def create_session(request: Request, body: CreateSessionRequest) -> Sessio
     llm_service.get_llm_provider(provider)  # Lanza HTTPException(400) si no es válido
 
     session_id = str(uuid.uuid4())
-    session = await queries.create_session(session_id, body.profile_id, body.brief_id, provider)
+    session = await queries.create_session(
+        session_id, body.profile_id, body.brief_id, provider, body.department_id
+    )
 
-    return SessionResponse(**session)
+    enriched = _enrich_session(session)
+    return SessionResponse(**enriched)
 
 
 @router.get("/{session_id}", response_model=SessionResponse)
@@ -123,13 +211,15 @@ async def get_session(session_id: str) -> SessionResponse:
     Devuelve el estado y el historial completo de una sesión.
 
     El historial incluye todos los mensajes en orden cronológico.
+    Los nombres legibles de perfil, brief y departamento se incluyen en la respuesta.
     """
     session = await queries.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
     messages = await queries.get_messages(session_id)
-    return SessionResponse(**session, messages=messages)
+    enriched = _enrich_session(session)
+    return SessionResponse(**enriched, messages=messages)
 
 
 @router.delete("/{session_id}")

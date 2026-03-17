@@ -4,18 +4,25 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import ProfileSelect from "./ProfileSelect";
 import BriefSelect from "./BriefSelect";
+import DepartmentSelect from "./DepartmentSelect";
 import { ActiveSession } from "@/context/SessionContext";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import AddIcon from "@mui/icons-material/Add";
 
 interface SessionAccordionProps {
   session: ActiveSession | null;
   isLoading: boolean;
+  isViewMode: boolean;
+  onNewSession: () => void;
   onStart: (
     profileId: string,
     profileName: string,
     briefId: string,
-    briefName: string
+    briefName: string,
+    departmentId?: string,
+    departmentName?: string,
   ) => Promise<void>;
   onRequestClose: () => void;
 }
@@ -23,6 +30,8 @@ interface SessionAccordionProps {
 export default function SessionAccordion({
   session,
   isLoading,
+  isViewMode,
+  onNewSession,
   onStart,
   onRequestClose,
 }: SessionAccordionProps) {
@@ -31,22 +40,47 @@ export default function SessionAccordion({
   const [profileName, setProfileName] = useState("");
   const [briefId, setBriefId] = useState("");
   const [briefName, setBriefName] = useState("");
+  const [departmentId, setDepartmentId] = useState("");
+  const [departmentName, setDepartmentName] = useState("");
 
   const handleStart = async () => {
     if (!profileId || !briefId) return;
-    await onStart(profileId, profileName, briefId, briefName);
+    await onStart(
+      profileId,
+      profileName,
+      briefId,
+      briefName,
+      departmentId || undefined,
+      departmentName || undefined,
+    );
   };
 
   const canStart = Boolean(profileId && briefId && !isLoading);
 
-  /* ── Sesión activa: barra siempre visible, sin colapso ── */
+  /* ── Sesión activa o en modo lectura: barra siempre visible ── */
   if (session) {
     return (
       <div className="rounded-xl border border-split bg-white px-5 py-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 text-xs bg-primary-btn text-primary-dark px-2 py-0.5 rounded-full font-medium">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-600 animate-pulse" />
-            Sesión activa
+        <div className="flex items-center gap-3 flex-wrap">
+          <span
+            className={[
+              "inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full font-medium",
+              isViewMode
+                ? "bg-gray-100 text-gray-600"
+                : "bg-primary-btn text-primary-dark",
+            ].join(" ")}
+          >
+            {isViewMode ? (
+              <>
+                <VisibilityIcon style={{ fontSize: "10px" }} />
+                Solo lectura
+              </>
+            ) : (
+              <>
+                <span className="h-1.5 w-1.5 rounded-full bg-green-600 animate-pulse" />
+                Sesión activa
+              </>
+            )}
           </span>
           <span className="text-sm text-text-secondary">
             <span className="font-medium text-text-primary">Perfil:</span>{" "}
@@ -56,10 +90,22 @@ export default function SessionAccordion({
             <span className="font-medium text-text-primary">Brief:</span>{" "}
             {session.briefName}
           </span>
+          {session.departmentName && (
+            <span className="text-sm text-text-secondary">
+              <span className="font-medium text-text-primary">Depto:</span>{" "}
+              {session.departmentName}
+            </span>
+          )}
         </div>
-        <Button variant="danger" size="sm" onClick={onRequestClose}>
-          <StopIcon fontSize="small" /> Cerrar sesión
-        </Button>
+        {isViewMode ? (
+          <Button variant="secondary" size="sm" onClick={onNewSession}>
+            <AddIcon fontSize="small" /> Nueva sesión
+          </Button>
+        ) : (
+          <Button variant="danger" size="sm" onClick={onRequestClose}>
+            <StopIcon fontSize="small" /> Cerrar sesión
+          </Button>
+        )}
       </div>
     );
   }
@@ -84,7 +130,7 @@ export default function SessionAccordion({
       <div
         className={[
           "overflow-hidden transition-all duration-300 ease-in-out",
-          open ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0",
+          open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0",
         ].join(" ")}
       >
         <div className="px-5 py-3 border-t border-split flex flex-wrap items-end gap-3">
@@ -104,6 +150,16 @@ export default function SessionAccordion({
               onChange={(id, name) => {
                 setBriefId(id);
                 setBriefName(name);
+              }}
+              disabled={isLoading}
+            />
+          </div>
+          <div className="flex-1 min-w-[180px]">
+            <DepartmentSelect
+              value={departmentId}
+              onChange={(id, name) => {
+                setDepartmentId(id);
+                setDepartmentName(name);
               }}
               disabled={isLoading}
             />

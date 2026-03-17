@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Select from "@/components/ui/Select";
-import { fetchProfiles, ProfileSummary } from "@/services/api";
+import { fetchProfiles, fetchProfile, ProfileSummary } from "@/services/api";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import BoltIcon from "@mui/icons-material/Bolt";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExploreIcon from "@mui/icons-material/Explore";
 import HelpModal from "./HelpModal";
+import ContentViewerModal from "./ContentViewerModal";
 
 const profiles = [
   {
@@ -44,10 +46,7 @@ const PROFILE_HELP_CONTENT = (
     </p>
     <div className="flex flex-col gap-2">
       {profiles.map((p) => (
-        <div
-          key={p.name}
-          className="flex items-start gap-3 px-1 py-2"
-        >
+        <div key={p.name} className="flex items-start gap-3 px-1 py-2">
           <div className="flex-shrink-0 mt-0.5">{p.icon}</div>
           <div>
             <p className="text-sm font-medium text-text-primary">{p.name}</p>
@@ -65,14 +64,12 @@ interface ProfileSelectProps {
   disabled?: boolean;
 }
 
-export default function ProfileSelect({
-  value,
-  onChange,
-  disabled,
-}: ProfileSelectProps) {
+export default function ProfileSelect({ value, onChange, disabled }: ProfileSelectProps) {
   const [profileOptions, setProfileOptions] = useState<ProfileSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
+  const [viewerContent, setViewerContent] = useState<Record<string, unknown> | null>(null);
+  const [loadingContent, setLoadingContent] = useState(false);
 
   useEffect(() => {
     fetchProfiles()
@@ -85,6 +82,20 @@ export default function ProfileSelect({
     onChange(selectedId, profile?.name ?? selectedId);
   };
 
+  const handleViewContent = async () => {
+    if (!value || loadingContent) return;
+    setLoadingContent(true);
+    try {
+      const data = await fetchProfile(value);
+      setViewerContent(data.content);
+    } finally {
+      setLoadingContent(false);
+    }
+  };
+
+  const selectedName = profileOptions.find((p) => p.id === value)?.name ?? value;
+  const editable = !!(process.env.NEXT_PUBLIC_ADMIN_TOKEN);
+
   return (
     <div className="flex flex-col gap-1">
       <label className="inline-flex items-center gap-1 text-sm font-medium text-text-secondary">
@@ -96,6 +107,16 @@ export default function ProfileSelect({
           className="inline-flex items-center text-text-secondary hover:text-primary-dark transition-colors"
         >
           <HelpOutlineIcon fontSize="inherit" />
+        </button>
+        <button
+          type="button"
+          onClick={handleViewContent}
+          disabled={!value || loadingContent || disabled}
+          aria-label="Ver contenido del perfil seleccionado"
+          title="Ver contenido del perfil"
+          className="ml-auto inline-flex items-center text-text-secondary hover:text-primary-dark transition-colors disabled:opacity-40"
+        >
+          <InfoOutlinedIcon style={{ fontSize: "16px" }} />
         </button>
       </label>
       <Select
@@ -111,6 +132,16 @@ export default function ProfileSelect({
           title="Perfiles de comportamiento"
           content={PROFILE_HELP_CONTENT}
           onClose={() => setShowHelp(false)}
+        />
+      )}
+      {viewerContent && (
+        <ContentViewerModal
+          title={selectedName}
+          itemId={value}
+          itemType="profile"
+          content={viewerContent}
+          editable={editable}
+          onClose={() => setViewerContent(null)}
         />
       )}
     </div>

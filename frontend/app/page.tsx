@@ -6,6 +6,7 @@
  * Estructura:
  *  - SessionProvider   → contexto global de sesión
  *  - Header            → barra superior fija
+ *  - aside             → sidebar de historial (solo en desktop lg+)
  *  - SessionAccordion  → configurar / ver sesión activa
  *  - ChatArea          → historial de mensajes (solo con sesión activa)
  *  - InputBar          → entrada de mensajes
@@ -22,6 +23,7 @@ import SessionAccordion from "@/components/SessionAccordion";
 import ChatArea from "@/components/ChatArea";
 import InputBar from "@/components/InputBar";
 import CloseSessionModal from "@/components/CloseSessionModal";
+import ConversationSidebar from "@/components/ConversationSidebar";
 import Alert from "@/components/ui/Alert";
 
 /**
@@ -33,6 +35,7 @@ function AppContent() {
     session,
     messages,
     isLoading,
+    isViewMode,
     error,
     startSession,
     closeSession,
@@ -55,32 +58,60 @@ function AppContent() {
     <div className="h-screen flex flex-col bg-white overflow-hidden">
       <Header />
 
-      <main className="flex-1 flex flex-col min-h-0 max-w-4xl w-full mx-auto px-4 py-4 gap-3">
-        {/* Error global */}
-        {error && (
-          <Alert type="error" message={error} onClose={clearError} />
-        )}
+      {/* Layout principal: sidebar + contenido */}
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        {/* Sidebar de historial — visible solo en pantallas lg+ */}
+        <aside className="hidden lg:flex lg:w-64 lg:flex-shrink-0 border-r border-split overflow-y-auto">
+          <ConversationSidebar />
+        </aside>
 
-        {/* Barra de sesión (siempre visible) */}
-        <SessionAccordion
-          session={session}
-          isLoading={isLoading}
-          onStart={startSession}
-          onRequestClose={() => setShowCloseModal(true)}
-        />
+        {/* Contenido principal */}
+        <main className="flex-1 flex flex-col min-h-0 max-w-4xl w-full mx-auto px-4 py-4 gap-3 overflow-hidden">
+          {/* Error global */}
+          {error && (
+            <Alert type="error" message={error} onClose={clearError} />
+          )}
 
-        {/* Área de conversación — ocupa el espacio restante */}
-        <div className="flex-1 flex flex-col gap-2 min-h-0">
-          <ChatArea messages={messages} isLoading={isLoading} />
-
-          <InputBar
-            onSend={sendMessage}
-            onQuestionnaire={submitQuestionnaire}
+          {/* Barra de sesión (siempre visible) */}
+          <SessionAccordion
+            session={session}
             isLoading={isLoading}
-            disabled={!session}
+            isViewMode={isViewMode}
+            onNewSession={closeSession}
+            onStart={startSession}
+            onRequestClose={() => setShowCloseModal(true)}
           />
-        </div>
-      </main>
+
+          {/* Banner de solo lectura */}
+          {isViewMode && session && (
+            <div className="text-xs text-center text-text-secondary bg-conv-bg rounded-lg px-4 py-2 border border-split">
+              Sesión cerrada — modo solo lectura
+              {session.closedAt && (
+                <span>
+                  {" "}·{" "}
+                  {new Date(session.closedAt).toLocaleDateString("es-ES", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Área de conversación — ocupa el espacio restante */}
+          <div className="flex-1 flex flex-col gap-2 min-h-0">
+            <ChatArea messages={messages} isLoading={isLoading} />
+
+            <InputBar
+              onSend={sendMessage}
+              onQuestionnaire={submitQuestionnaire}
+              isLoading={isLoading}
+              disabled={!session || isViewMode}
+            />
+          </div>
+        </main>
+      </div>
 
       <Footer />
 

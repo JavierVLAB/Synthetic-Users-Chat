@@ -2,10 +2,11 @@
  * Contexto de sesión — estado global de la investigación activa.
  *
  * Proporciona a todos los componentes de la app acceso a:
- *   - La sesión activa (session_id, perfil, brief)
- *   - Acciones para iniciar y cerrar sesión
+ *   - La sesión activa (session_id, perfil, brief, departamento)
+ *   - Acciones para iniciar, cargar y cerrar sesión
  *   - El historial de mensajes del chat
  *   - El estado de carga durante las llamadas al LLM
+ *   - El modo de solo lectura (isViewMode) al ver sesiones cerradas
  *
  * Uso:
  *   const { session, messages, startSession, closeSession } = useSession();
@@ -19,6 +20,7 @@
 import React, { createContext, useCallback, useReducer } from "react";
 import {
   createSession,
+  fetchSession,
   sendChatMessage,
   sendQuestionnaire,
   closeSession as apiCloseSession,
@@ -34,10 +36,13 @@ export interface ActiveSession {
   profileName: string;
   briefId: string;
   briefName: string;
+  departmentId?: string;
+  departmentName?: string;
+  closedAt?: string;
 }
 
 export interface SessionState {
-  /** Sesión activa, o null si no hay sesión en curso. */
+  /** Sesión activa (o cargada en modo lectura), o null si no hay sesión. */
   session: ActiveSession | null;
   /** Historial de mensajes del chat en la sesión actual. */
   messages: ChatMessage[];
@@ -45,12 +50,15 @@ export interface SessionState {
   isLoading: boolean;
   /** Mensaje de error si la última operación falló. */
   error: string | null;
+  /** true cuando se está viendo una sesión cerrada en modo solo lectura. */
+  isViewMode: boolean;
 }
 
 /* ── Acciones del reducer ────────────────────────────────────────────────── */
 
 type SessionAction =
   | { type: "SESSION_STARTED"; payload: ActiveSession }
+  | { type: "SESSION_LOADED"; payload: { session: ActiveSession; messages: ChatMessage[]; isViewMode: boolean } }
   | { type: "SESSION_CLOSED" }
   | { type: "MESSAGE_ADDED"; payload: ChatMessage }
   | { type: "LOADING_START" }
@@ -71,6 +79,16 @@ function sessionReducer(
         session: action.payload,
         messages: [],
         error: null,
+        isViewMode: false,
+      };
+    case "SESSION_LOADED":
+      return {
+        ...state,
+        session: action.payload.session,
+        messages: action.payload.messages,
+        isViewMode: action.payload.isViewMode,
+        error: null,
+        isLoading: false,
       };
     case "SESSION_CLOSED":
       return {
@@ -79,6 +97,7 @@ function sessionReducer(
         messages: [],
         error: null,
         isLoading: false,
+        isViewMode: false,
       };
     case "MESSAGE_ADDED":
       return { ...state, messages: [...state.messages, action.payload] };
@@ -100,6 +119,7 @@ const initialState: SessionState = {
   messages: [],
   isLoading: false,
   error: null,
+  isViewMode: false,
 };
 
 /* ── Contexto ────────────────────────────────────────────────────────────── */
@@ -107,20 +127,21 @@ const initialState: SessionState = {
 export interface SessionContextValue extends SessionState {
   /**
    * Inicia una nueva sesión de investigación.
-   *
-   * Genera un UUID, llama a `POST /sessions` y actualiza el estado.
-   *
-   * @param profileId   - ID del perfil de comportamiento seleccionado
-   * @param profileName - Nombre legible del perfil (para mostrar en UI)
-   * @param briefId     - ID del brief de producto seleccionado
-   * @param briefName   - Nombre legible del brief (para mostrar en UI)
    */
   startSession: (
     profileId: string,
     profileName: string,
     briefId: string,
-    briefName: string
+    briefName: string,
+    departmentId?: string,
+    departmentName?: string,
   ) => Promise<void>;
+
+  /**
+   * Carga una sesión existente desde el historial.
+   * Si la sesión está cerrada, entra en modo solo lectura.
+   */
+  loadSession: (sessionId: string) => Promise<void>;
 
   /**
    * Cierra la sesión activa llamando a `DELETE /sessions/{id}`.
@@ -131,16 +152,12 @@ export interface SessionContextValue extends SessionState {
   /**
    * Envía un mensaje del investigador y recibe la respuesta del LLM.
    * Añade ambos mensajes al historial.
-   *
-   * @param message - Texto del investigador
    */
   sendMessage: (message: string) => Promise<void>;
 
   /**
    * Envía un cuestionario (lista de preguntas) al LLM.
    * La respuesta se añade al historial como un mensaje del asistente.
-   *
-   * @param questions - Array de preguntas en texto plano
    */
   submitQuestionnaire: (questions: string[]) => Promise<void>;
 
@@ -152,12 +169,6 @@ export const SessionContext = createContext<SessionContextValue | null>(null);
 
 /* ── Provider ────────────────────────────────────────────────────────────── */
 
-/**
- * Proveedor del contexto de sesión.
- *
- * Debe envolver el árbol de componentes que necesitan acceso al estado
- * de sesión. En esta aplicación, envuelve la página completa en `page.tsx`.
- */
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(sessionReducer, initialState);
 
@@ -179,11 +190,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       profileId: string,
       profileName: string,
       briefId: string,
-      briefName: string
+      briefName: string,
+      departmentId?: string,
+      departmentName?: string,
     ) => {
       dispatch({ type: "LOADING_START" });
       try {
-        const sessionData = await createSession(profileId, briefId);
+        const sessionData = await createSession(profileId, briefId, departmentId);
         dispatch({
           type: "SESSION_STARTED",
           payload: {
@@ -192,6 +205,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
             profileName,
             briefId,
             briefName,
+            departmentId,
+            departmentName,
           },
         });
       } catch {
@@ -205,6 +220,41 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     },
     []
   );
+
+  const loadSession = useCallback(async (sessionId: string) => {
+    dispatch({ type: "LOADING_START" });
+    try {
+      const data = await fetchSession(sessionId);
+      const isViewMode = !!data.closed_at;
+
+      const session: ActiveSession = {
+        sessionId: data.session_id,
+        profileId: data.profile_id,
+        profileName: data.profile_name ?? data.profile_id,
+        briefId: data.brief_id,
+        briefName: data.brief_name ?? data.brief_id,
+        departmentId: data.department_id,
+        departmentName: data.department_name ?? undefined,
+        closedAt: data.closed_at,
+      };
+
+      const messages: ChatMessage[] = (data.messages ?? []).map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+        timestamp: m.timestamp,
+      }));
+
+      dispatch({
+        type: "SESSION_LOADED",
+        payload: { session, messages, isViewMode },
+      });
+    } catch {
+      dispatch({
+        type: "ERROR_SET",
+        payload: "No se pudo cargar la sesión.",
+      });
+    }
+  }, []);
 
   const closeSession = useCallback(async () => {
     if (!state.session) return;
@@ -274,6 +324,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       value={{
         ...state,
         startSession,
+        loadSession,
         closeSession,
         sendMessage,
         submitQuestionnaire,

@@ -56,6 +56,12 @@ async def init_database() -> None:
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(CREATE_SESSIONS_TABLE)
         await db.execute(CREATE_MESSAGES_TABLE)
+        # Migración: añadir department_id si no existe (seguro ejecutar varias veces)
+        try:
+            await db.execute("ALTER TABLE sessions ADD COLUMN department_id TEXT;")
+            logger.info("Migración aplicada: columna department_id añadida a sessions.")
+        except Exception:
+            pass  # La columna ya existe — ignorar
         await db.commit()
 
     logger.info("Base de datos inicializada correctamente.")

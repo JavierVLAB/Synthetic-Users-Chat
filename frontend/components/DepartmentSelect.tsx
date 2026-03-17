@@ -2,47 +2,56 @@
 
 import { useEffect, useState } from "react";
 import Select from "@/components/ui/Select";
-import { fetchBriefs, fetchBrief, BriefSummary } from "@/services/api";
-import CreateBriefModal from "@/components/CreateBriefModal";
+import { fetchDepartments, fetchDepartment, DepartmentSummary } from "@/services/api";
+import CreateDepartmentModal from "@/components/CreateDepartmentModal";
 import ContentViewerModal from "@/components/ContentViewerModal";
 import AddIcon from "@mui/icons-material/Add";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
-interface BriefSelectProps {
+interface DepartmentSelectProps {
   value: string;
   onChange: (id: string, name: string) => void;
   disabled?: boolean;
 }
 
 /**
- * Selector de brief de producto.
+ * Selector de departamento de Moeve.
  *
+ * La selección es opcional — el usuario puede dejar "Sin departamento".
  * Incluye:
- * - Botón "+" para crear un nuevo brief inline.
- * - Icono ⓘ para ver (y editar si admin token) el contenido del brief seleccionado.
+ * - Botón "+" para crear un nuevo departamento inline.
+ * - Icono ⓘ para ver (y editar si admin token) el contenido del departamento seleccionado.
  */
-export default function BriefSelect({ value, onChange, disabled }: BriefSelectProps) {
-  const [briefs, setBriefs] = useState<BriefSummary[]>([]);
+export default function DepartmentSelect({ value, onChange, disabled }: DepartmentSelectProps) {
+  const [departments, setDepartments] = useState<DepartmentSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [viewerContent, setViewerContent] = useState<Record<string, unknown> | null>(null);
   const [loadingContent, setLoadingContent] = useState(false);
 
-  useEffect(() => {
-    fetchBriefs()
-      .then(setBriefs)
+  const loadDepartments = () => {
+    fetchDepartments()
+      .then(setDepartments)
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadDepartments();
   }, []);
 
   const handleChange = (selectedId: string) => {
-    const brief = briefs.find((b) => b.id === selectedId);
-    onChange(selectedId, brief?.name ?? selectedId);
+    if (selectedId === "") {
+      onChange("", "");
+      return;
+    }
+    const dept = departments.find((d) => d.id === selectedId);
+    onChange(selectedId, dept?.name ?? selectedId);
   };
 
   const handleCreated = (id: string, name: string) => {
     setShowCreate(false);
-    fetchBriefs().then((newBriefs) => {
-      setBriefs(newBriefs);
+    fetchDepartments().then((newDepts) => {
+      setDepartments(newDepts);
       onChange(id, name);
     });
   };
@@ -51,27 +60,28 @@ export default function BriefSelect({ value, onChange, disabled }: BriefSelectPr
     if (!value || loadingContent) return;
     setLoadingContent(true);
     try {
-      const data = await fetchBrief(value);
+      const data = await fetchDepartment(value);
       setViewerContent(data.content);
     } finally {
       setLoadingContent(false);
     }
   };
 
-  const selectedName = briefs.find((b) => b.id === value)?.name ?? value;
+  const selectedName = departments.find((d) => d.id === value)?.name ?? value;
   const editable = !!(process.env.NEXT_PUBLIC_ADMIN_TOKEN);
 
   return (
     <>
       <div className="flex flex-col gap-1">
         <label className="inline-flex items-center gap-1 text-sm font-medium text-text-secondary">
-          Brief de producto
+          Departamento
+          <span className="text-xs text-text-secondary font-normal">(opcional)</span>
           <button
             type="button"
             onClick={() => setShowCreate(true)}
             disabled={disabled}
-            aria-label="Crear nuevo brief"
-            title="Crear nuevo brief"
+            aria-label="Crear nuevo departamento"
+            title="Crear nuevo departamento"
             className="inline-flex items-center text-text-secondary hover:text-primary-dark transition-colors disabled:opacity-40"
           >
             <AddIcon style={{ fontSize: "16px" }} />
@@ -80,17 +90,17 @@ export default function BriefSelect({ value, onChange, disabled }: BriefSelectPr
             type="button"
             onClick={handleViewContent}
             disabled={!value || loadingContent || disabled}
-            aria-label="Ver contenido del brief seleccionado"
-            title="Ver contenido del brief"
+            aria-label="Ver contenido del departamento seleccionado"
+            title="Ver contenido del departamento"
             className="ml-auto inline-flex items-center text-text-secondary hover:text-primary-dark transition-colors disabled:opacity-40"
           >
             <InfoOutlinedIcon style={{ fontSize: "16px" }} />
           </button>
         </label>
         <Select
-          label="Brief de producto"
-          placeholder={loading ? "Cargando briefs…" : "Selecciona un brief"}
-          options={briefs.map((b) => ({ value: b.id, label: b.name }))}
+          label="Departamento"
+          placeholder={loading ? "Cargando…" : "Sin departamento"}
+          options={departments.map((d) => ({ value: d.id, label: d.name }))}
           value={value}
           onChange={(e) => handleChange(e.target.value)}
           disabled={disabled || loading}
@@ -98,7 +108,7 @@ export default function BriefSelect({ value, onChange, disabled }: BriefSelectPr
       </div>
 
       {showCreate && (
-        <CreateBriefModal
+        <CreateDepartmentModal
           onClose={() => setShowCreate(false)}
           onCreated={handleCreated}
         />
@@ -107,7 +117,7 @@ export default function BriefSelect({ value, onChange, disabled }: BriefSelectPr
         <ContentViewerModal
           title={selectedName}
           itemId={value}
-          itemType="brief"
+          itemType="department"
           content={viewerContent}
           editable={editable}
           onClose={() => setViewerContent(null)}

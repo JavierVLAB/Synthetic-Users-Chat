@@ -16,6 +16,7 @@ import logging
 import os
 
 import httpx
+import yaml
 from fastapi import HTTPException
 
 from app.config import settings
@@ -68,6 +69,7 @@ def build_system_prompt(
     employee_profile_text: str,
     behavior_profile_text: str,
     brief_text: str,
+    department_text: str | None = None,
 ) -> str:
     """
     Construye el system prompt interpolando la plantilla con los perfiles y el brief.
@@ -79,6 +81,8 @@ def build_system_prompt(
         employee_profile_text: Contenido completo del perfil de empleado como texto.
         behavior_profile_text: Contenido completo del perfil de comportamiento como texto.
         brief_text: Contenido completo del brief de producto como texto.
+        department_text: Contenido del departamento (opcional). Si se provee, se incluye
+                         como sección con cabecera en el prompt.
 
     Returns:
         System prompt completo listo para enviar al LLM.
@@ -94,10 +98,39 @@ def build_system_prompt(
     with open(PROMPT_TEMPLATE_PATH, "r", encoding="utf-8") as f:
         template = f.read()
 
+    # Construir la sección de departamento solo si se ha seleccionado uno
+    if department_text:
+        dept_section = (
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "DEPARTAMENTO EN EL QUE TRABAJAS\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"{department_text}\n\n"
+        )
+    else:
+        dept_section = ""
+
+    # Extraer datos_de_uso del brief si existe
+    datos_de_uso_section = ""
+    try:
+        brief_parsed = yaml.safe_load(brief_text)
+        if isinstance(brief_parsed, dict):
+            datos = brief_parsed.get("datos_de_uso", "")
+            if datos and str(datos).strip():
+                datos_de_uso_section = (
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    "DATOS REALES DE USO (úsalos como referencia, no los inventes)\n"
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    f"{str(datos).strip()}\n\n"
+                )
+    except Exception:
+        pass  # Si el brief no es YAML válido, ignorar datos_de_uso
+
     return template.format_map({
         "perfil_empleado": employee_profile_text,
         "perfil_comportamiento": behavior_profile_text,
         "brief_producto": brief_text,
+        "departamento": dept_section,
+        "datos_de_uso": datos_de_uso_section,
     })
 
 

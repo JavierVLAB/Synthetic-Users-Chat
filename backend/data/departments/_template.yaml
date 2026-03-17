@@ -1,0 +1,10 @@
+name: Nombre del Departamento
+
+descripcion: |
+  Descripción del departamento: qué hace, cómo trabaja la gente que pertenece a él,
+  qué herramientas usa habitualmente, cuáles son sus principales preocupaciones y
+  el contexto en el que se mueve en su día a día.
+
+  Este contexto se inyecta en el system prompt del usuario sintético para que sus
+  respuestas reflejen la perspectiva específica de alguien que trabaja en este
+  departamento dentro de Moeve.

@@ -46,13 +46,42 @@ export interface BriefSummary {
   name: string;
 }
 
+/** Resumen de un departamento de Moeve listado en el dropdown. */
+export interface DepartmentSummary {
+  id: string;
+  name: string;
+  descripcion?: string;
+}
+
+/** Resumen de sesión para el sidebar de historial. */
+export interface SessionListItem {
+  session_id: string;
+  profile_id: string;
+  profile_name: string;
+  brief_id: string;
+  brief_name: string;
+  department_id?: string;
+  department_name?: string;
+  llm_provider: string;
+  created_at: string;
+  closed_at?: string;
+  message_count: number;
+  status: "active" | "closed";
+}
+
 /** Respuesta de creación de sesión. */
 export interface SessionResponse {
   session_id: string;
   profile_id: string;
   brief_id: string;
+  department_id?: string;
   status: "active" | "closed";
   created_at: string;
+  closed_at?: string;
+  profile_name?: string;
+  brief_name?: string;
+  department_name?: string;
+  messages?: ChatMessage[];
 }
 
 /** Un mensaje del historial de conversación. */
@@ -100,17 +129,19 @@ export async function fetchBriefs(): Promise<BriefSummary[]> {
  * Crea una nueva sesión de investigación.
  * Mapea al endpoint `POST /sessions`.
  *
- * @param sessionId - UUID v4 generado en el cliente
- * @param profileId - ID del perfil de comportamiento seleccionado
- * @param briefId   - ID del brief de producto seleccionado
+ * @param profileId    - ID del perfil de comportamiento seleccionado
+ * @param briefId      - ID del brief de producto seleccionado
+ * @param departmentId - ID del departamento de Moeve (opcional)
  */
 export async function createSession(
   profileId: string,
-  briefId: string
+  briefId: string,
+  departmentId?: string,
 ): Promise<SessionResponse> {
   const { data } = await api.post<SessionResponse>("/sessions", {
     profile_id: profileId,
     brief_id: briefId,
+    ...(departmentId ? { department_id: departmentId } : {}),
   });
   return data;
 }
@@ -160,6 +191,127 @@ export async function sendQuestionnaire(
  */
 export async function closeSession(sessionId: string): Promise<void> {
   await api.delete(`/sessions/${sessionId}`);
+}
+
+/**
+ * Obtiene la lista de departamentos disponibles.
+ * Mapea al endpoint `GET /departments`.
+ */
+export async function fetchDepartments(): Promise<DepartmentSummary[]> {
+  const { data } = await api.get<DepartmentSummary[]>("/departments");
+  return data;
+}
+
+/**
+ * Obtiene la lista de todas las sesiones para el historial.
+ * Mapea al endpoint `GET /sessions`.
+ */
+export async function fetchSessions(): Promise<SessionListItem[]> {
+  const { data } = await api.get<SessionListItem[]>("/sessions");
+  return data;
+}
+
+/**
+ * Obtiene el detalle completo de una sesión (con mensajes).
+ * Mapea al endpoint `GET /sessions/{id}`.
+ *
+ * @param sessionId - ID de la sesión
+ */
+export async function fetchSession(sessionId: string): Promise<SessionResponse> {
+  const { data } = await api.get<SessionResponse>(`/sessions/${sessionId}`);
+  return data;
+}
+
+/**
+ * Crea un nuevo brief de producto.
+ * Requiere NEXT_PUBLIC_ADMIN_TOKEN configurado en el entorno.
+ * Mapea al endpoint `POST /briefs`.
+ *
+ * @param content - Contenido del brief
+ */
+export async function createBrief(
+  content: Record<string, unknown>
+): Promise<{ id: string; name: string }> {
+  const adminToken = process.env.NEXT_PUBLIC_ADMIN_TOKEN ?? "";
+  const { data } = await api.post(
+    "/briefs",
+    { content },
+    { headers: { "X-Admin-Token": adminToken } }
+  );
+  return data;
+}
+
+/**
+ * Obtiene el detalle completo de un perfil de comportamiento.
+ * Mapea al endpoint `GET /profiles/{id}`.
+ */
+export async function fetchProfile(profileId: string): Promise<{ id: string; content: Record<string, unknown> }> {
+  const { data } = await api.get(`/profiles/${profileId}`);
+  return data;
+}
+
+/**
+ * Actualiza el contenido de un perfil de comportamiento.
+ * Requiere NEXT_PUBLIC_ADMIN_TOKEN. Mapea a `PUT /profiles/{id}`.
+ */
+export async function updateProfile(profileId: string, content: Record<string, unknown>): Promise<void> {
+  const adminToken = process.env.NEXT_PUBLIC_ADMIN_TOKEN ?? "";
+  await api.put(`/profiles/${profileId}`, { content }, { headers: { "X-Admin-Token": adminToken } });
+}
+
+/**
+ * Obtiene el detalle completo de un brief de producto.
+ * Mapea al endpoint `GET /briefs/{id}`.
+ */
+export async function fetchBrief(briefId: string): Promise<{ id: string; content: Record<string, unknown> }> {
+  const { data } = await api.get(`/briefs/${briefId}`);
+  return data;
+}
+
+/**
+ * Actualiza el contenido de un brief de producto.
+ * Requiere NEXT_PUBLIC_ADMIN_TOKEN. Mapea a `PUT /briefs/{id}`.
+ */
+export async function updateBrief(briefId: string, content: Record<string, unknown>): Promise<void> {
+  const adminToken = process.env.NEXT_PUBLIC_ADMIN_TOKEN ?? "";
+  await api.put(`/briefs/${briefId}`, { content }, { headers: { "X-Admin-Token": adminToken } });
+}
+
+/**
+ * Obtiene el detalle completo de un departamento.
+ * Mapea al endpoint `GET /departments/{id}`.
+ */
+export async function fetchDepartment(deptId: string): Promise<{ id: string; content: Record<string, unknown> }> {
+  const { data } = await api.get(`/departments/${deptId}`);
+  return data;
+}
+
+/**
+ * Actualiza el contenido de un departamento.
+ * Requiere NEXT_PUBLIC_ADMIN_TOKEN. Mapea a `PUT /departments/{id}`.
+ */
+export async function updateDepartment(deptId: string, content: Record<string, unknown>): Promise<void> {
+  const adminToken = process.env.NEXT_PUBLIC_ADMIN_TOKEN ?? "";
+  await api.put(`/departments/${deptId}`, { content }, { headers: { "X-Admin-Token": adminToken } });
+}
+
+/**
+ * Crea un nuevo departamento.
+ * Requiere NEXT_PUBLIC_ADMIN_TOKEN configurado en el entorno.
+ * Mapea al endpoint `POST /departments`.
+ *
+ * @param content - Contenido del departamento
+ */
+export async function createDepartment(
+  content: Record<string, unknown>
+): Promise<{ id: string; name: string }> {
+  const adminToken = process.env.NEXT_PUBLIC_ADMIN_TOKEN ?? "";
+  const { data } = await api.post(
+    "/departments",
+    { content },
+    { headers: { "X-Admin-Token": adminToken } }
+  );
+  return data;
 }
 
 /**
