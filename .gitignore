@@ -35,3 +35,5 @@ frontend/out/
 .idea/
 .claude/settings.json
 .claude/settings.local.json
+
+Research/
