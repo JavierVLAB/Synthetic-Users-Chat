@@ -15,6 +15,9 @@ import axios from "axios";
 /** URL base del backend, configurable por variable de entorno. */
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+const TOKEN_KEY = "moeve-auth-token";
+const COOKIE_NAME = "auth-token";
+
 /**
  * Instancia de axios preconfigurada.
  *
@@ -29,6 +32,33 @@ const api = axios.create({
   },
   timeout: 90_000,
 });
+
+// Interceptor de request: añade el JWT en todas las llamadas
+api.interceptors.request.use((config) => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Interceptor de response: si el backend devuelve 401, limpia el token y redirige a /login
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.status === 401 &&
+      typeof window !== "undefined"
+    ) {
+      localStorage.removeItem(TOKEN_KEY);
+      document.cookie = `${COOKIE_NAME}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;
 

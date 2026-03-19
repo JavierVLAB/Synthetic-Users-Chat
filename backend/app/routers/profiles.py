@@ -18,13 +18,18 @@ import logging
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 
+from app.dependencies import get_current_user
 from app.models.profile import ProfileDetail, ProfileSummary, ProfileWriteRequest
 from app.services import profile_service
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/profiles", tags=["Perfiles"])
+router = APIRouter(
+    prefix="/profiles",
+    tags=["Perfiles"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 def verify_admin_token(x_admin_token: str = Header(...)) -> None:

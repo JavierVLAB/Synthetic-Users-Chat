@@ -17,12 +17,13 @@ import logging
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from app.config import settings
+from app.dependencies import get_current_user
 from app.db import queries
 from app.models.questionnaire import QuestionnaireRequest, QuestionnaireResponse
 from app.models.session import ChatRequest, ChatResponse, CreateSessionRequest, SessionResponse
@@ -30,7 +31,11 @@ from app.services import brief_service, llm_service, pdf_service, profile_servic
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/sessions", tags=["Sesiones"])
+router = APIRouter(
+    prefix="/sessions",
+    tags=["Sesiones"],
+    dependencies=[Depends(get_current_user)],
+)
 limiter = Limiter(key_func=get_remote_address)
 
 

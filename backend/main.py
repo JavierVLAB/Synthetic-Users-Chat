@@ -23,7 +23,7 @@ from slowapi.util import get_remote_address
 
 from app.config import settings
 from app.db.database import init_database
-from app.routers import briefs, profiles, sessions
+from app.routers import auth, briefs, profiles, sessions
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 
@@ -83,6 +83,7 @@ async def on_startup() -> None:
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 
+app.include_router(auth.router)
 app.include_router(sessions.router)
 app.include_router(profiles.router)
 app.include_router(briefs.router)

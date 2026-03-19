@@ -15,13 +15,18 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.dependencies import get_current_user
 from app.models.brief import BriefDetail, BriefSummary, BriefWriteRequest
 from app.routers.profiles import verify_admin_token  # Reutilizamos la misma dependencia
 from app.services import brief_service
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/briefs", tags=["Briefs"])
+router = APIRouter(
+    prefix="/briefs",
+    tags=["Briefs"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 # ── Endpoints públicos ────────────────────────────────────────────────────────

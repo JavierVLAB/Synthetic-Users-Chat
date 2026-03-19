@@ -27,6 +27,9 @@ weasyprint==62.3
 pydyf==0.11.0          # Pinned: 0.12.x rompe weasyprint 62.3 (AttributeError en stream.transform)
 jinja2==3.1.4          # Motor de plantillas para el HTML del PDF
 
+# Autenticación JWT
+python-jose[cryptography]==3.5.0
+
 # Rate limiting
 slowapi==0.1.9
 

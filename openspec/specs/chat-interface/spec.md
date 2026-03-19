@@ -4,7 +4,7 @@ Interfaz conversacional principal de la aplicación. Pantalla única sin navegac
 
 ---
 
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Layout de pantalla única sin sidebar
 
@@ -22,15 +22,15 @@ La aplicación SHALL renderizar un layout de columna centrada compuesto por: hea
 
 ### Requirement: Header fijo con logo y usuario
 
-El header SHALL tener altura `64px`, fondo `#ffffff` y borde inferior `#9bcbe3` (sin sombra). A la izquierda SHALL mostrarse el logo Moeve seguido del título "Sistema de usuarios sintéticos" en Moeve Sans Light 24px color `#047dba`. A la derecha SHALL mostrarse el avatar del usuario (círculo `#1b3a5a` con icono de persona blanco), nombre completo en Moeve Sans Bold 14px `#004656`, rol en Moeve Sans Regular 14px `#004656`, y botón dropdown.
+El header SHALL estar siempre visible con el logo Moeve a la izquierda y el nombre del usuario a la derecha. El fondo del header SHALL ser `#ffffff`.
 
-#### Scenario: Logo y título alineados a la izquierda
-- **WHEN** el header está visible
-- **THEN** el logo Moeve y el texto "Sistema de usuarios sintéticos" SHALL estar juntos en la parte izquierda del header, con el texto en 24px, color `#047dba`, peso Light
+#### Scenario: Logo siempre visible
+- **WHEN** el investigador está en cualquier estado de la aplicación (con o sin sesión activa)
+- **THEN** el logo Moeve SHALL estar visible en la esquina superior izquierda del header
 
-#### Scenario: Sección de usuario a la derecha
+#### Scenario: Nombre de usuario visible
 - **WHEN** el header está visible
-- **THEN** en la parte derecha SHALL mostrarse: avatar circular con fondo `#1b3a5a`, nombre del usuario en Bold 14px, rol en Regular 14px, y flecha de dropdown — todos en color `#004656`
+- **THEN** SHALL mostrarse el nombre o identificador del investigador en la parte derecha del header
 
 ---
 
@@ -45,10 +45,6 @@ El sistema SHALL mostrar un accordion en la parte superior del área de contenid
 #### Scenario: Accordion expandido sin sesión
 - **WHEN** no hay sesión activa
 - **THEN** el accordion SHALL estar abierto mostrando el selector de perfil, el selector de brief y el botón "Iniciar sesión" deshabilitado
-
-#### Scenario: Accordion expandido sin sesión — layout inline
-- **WHEN** no hay sesión activa y el accordion está expandido
-- **THEN** el selector de perfil, el selector de brief y el botón "Iniciar sesión" SHALL estar en la misma fila horizontal, con el botón alineado al borde inferior de los selectores (no al centro del bloque label+select)
 
 #### Scenario: Accordion colapsado con sesión activa
 - **WHEN** el investigador inicia una sesión
@@ -116,11 +112,11 @@ El sistema SHALL mostrar los mensajes de la conversación en orden cronológico 
 
 #### Scenario: Mensaje del investigador
 - **WHEN** el investigador envía un mensaje
-- **THEN** SHALL aparecer alineado a la derecha con fondo `rgba(4,125,186,0.10)`, esquinas redondeadas en tl/tr/bl (sin br), Moeve Sans Light 16px `#004656`, con timestamp HH:MM
+- **THEN** SHALL aparecer alineado a la derecha con fondo `rgba(4,125,186,0.10)`, Moeve Sans 14px, con timestamp HH:MM
 
-#### Scenario: Mensaje del asistente sin tarjeta blanca
-- **WHEN** el usuario sintético responde
-- **THEN** el texto SHALL renderizarse directamente sobre el fondo `#f5f7fd` de la conversación, sin tarjeta blanca ni borde, en Moeve Sans Light 16px `#004656`, con markdown formateado (react-markdown)
+#### Scenario: Mensaje del usuario sintético con markdown
+- **WHEN** el usuario sintético responde con contenido markdown
+- **THEN** el mensaje SHALL renderizarse con markdown formateado (react-markdown), alineado a la izquierda, ancho completo, con timestamp HH:MM
 
 #### Scenario: Scroll automático al último mensaje
 - **WHEN** llega un nuevo mensaje
@@ -158,7 +154,7 @@ Cada mensaje del usuario sintético SHALL tener un botón "Copiar" que copia el 
 
 ### Requirement: Input bar con envío de mensajes
 
-El sistema SHALL proporcionar un input bar con contenedor fondo `#f2f6f7`, bordes redondeados `8px`, sin borde exterior visible. Incluye: botón `+` para cuestionario, textarea multilinea Moeve Sans Light 16px `#004656`, y botón de envío.
+El sistema SHALL proporcionar un input bar fijo en la parte inferior con: botón `+` para cuestionario, textarea multilinea y botón de envío.
 
 #### Scenario: Envío con botón o Enter
 - **WHEN** el investigador escribe texto y hace click en enviar o pulsa Enter
@@ -172,19 +168,15 @@ El sistema SHALL proporcionar un input bar con contenedor fondo `#f2f6f7`, borde
 - **WHEN** el campo está vacío o solo tiene espacios
 - **THEN** el botón de envío SHALL estar deshabilitado
 
-#### Scenario: Estilo del contenedor del input
-- **WHEN** el input bar es visible
-- **THEN** el textarea SHALL estar sobre un fondo `#f2f6f7` sin borde, con placeholder en color `#6b7280`
-
 ---
 
 ### Requirement: Footer del chat con disclaimer
 
-El footer SHALL tener altura `65px`, borde superior `#9bcbe3`, fondo `#ffffff`, ancho completo (sin restricción de ancho máximo). SHALL mostrar en la parte izquierda "Sistema de usuarios sintéticos" en Moeve Sans Light 14px `#004656` y en la parte derecha "© Moeve 2026" en Moeve Sans Regular 14px `#004656`.
+El sistema SHALL mostrar un disclaimer fijo debajo del input bar durante toda la sesión activa.
 
-#### Scenario: Footer con texto izquierda y derecha
-- **WHEN** el footer es visible
-- **THEN** SHALL mostrarse "Sistema de usuarios sintéticos" alineado a la izquierda y "© Moeve 2026" alineado a la derecha, ambos en color `#004656`
+#### Scenario: Disclaimer visible durante sesión
+- **WHEN** hay una sesión activa
+- **THEN** SHALL mostrarse: "Estás hablando con una IA sintética. Sus respuestas no representan opiniones reales." en Moeve Sans 12px, color `#5a7d91`
 
 ---
 
@@ -212,7 +204,7 @@ El sistema SHALL mostrar un modal de confirmación al cerrar sesión con opción
 
 ### Requirement: Sistema de diseño Moeve aplicado consistentemente
 
-Todos los componentes SHALL usar los tokens de color y tipografía del sistema Moeve. Moeve Sans SHALL cargarse desde archivos `.otf` locales. Los pesos disponibles son Light (300), Regular (400) y Bold (700) — no existe Medium (500).
+Todos los componentes SHALL usar los tokens de color y tipografía extraídos del archivo Figma. Moeve Sans SHALL cargarse desde archivos `.otf` locales con fallback `sans-serif`.
 
 #### Scenario: Fuente corporativa cargada
 - **WHEN** la aplicación carga
@@ -220,8 +212,56 @@ Todos los componentes SHALL usar los tokens de color y tipografía del sistema M
 
 #### Scenario: Colores correctos en header y accordion
 - **WHEN** el header y el accordion son visibles
-- **THEN** el header SHALL tener fondo `#ffffff`, borde `#9bcbe3`, título `#047dba`, y el botón primario SHALL tener fondo `#90ffbb` con texto `#004656`
+- **THEN** el header SHALL tener fondo `#ffffff`, el texto SHALL ser `#004656`, y el botón primario SHALL tener fondo `#90ffbb` con texto `#004656`
 
-#### Scenario: Bordes usando token split
-- **WHEN** cualquier componente con borde es visible (header, footer, accordion, input bar)
-- **THEN** el color de borde SHALL ser `#9bcbe3`, nunca colores genéricos de Tailwind como `gray-100` o `gray-200`
+---
+
+## MODIFIED Requirements
+
+### Requirement: Header fijo con logo y usuario
+
+El header SHALL tener altura `64px`, fondo `#ffffff` y borde inferior `#9bcbe3` (sin sombra). A la izquierda SHALL mostrarse el logo Moeve seguido del título "Sistema de usuarios sintéticos" en Moeve Sans Light 24px color `#047dba`. A la derecha SHALL mostrarse el avatar del usuario (círculo `#1b3a5a` con icono de persona blanco), nombre completo en Moeve Sans Bold 14px `#004656`, rol en Moeve Sans Regular 14px `#004656`, y botón dropdown.
+
+#### Scenario: Logo y título alineados a la izquierda
+- **WHEN** el header está visible
+- **THEN** el logo Moeve y el texto "Sistema de usuarios sintéticos" SHALL estar juntos en la parte izquierda del header, con el texto en 24px, color `#047dba`, peso Light
+
+#### Scenario: Sección de usuario a la derecha
+- **WHEN** el header está visible
+- **THEN** en la parte derecha SHALL mostrarse: avatar circular con fondo `#1b3a5a`, nombre del usuario en Bold 14px, rol en Regular 14px, y flecha de dropdown — todos en color `#004656`
+
+---
+
+### Requirement: Footer del chat con disclaimer
+
+El footer SHALL tener altura `65px`, borde superior `#9bcbe3`, fondo `#ffffff`, ancho completo (sin restricción de ancho máximo). SHALL mostrar en la parte izquierda "Sistema de usuarios sintéticos" en Moeve Sans Light 14px `#004656` y en la parte derecha "© Moeve 2026" en Moeve Sans Regular 14px `#004656`.
+
+#### Scenario: Footer con texto izquierda y derecha
+- **WHEN** el footer es visible
+- **THEN** SHALL mostrarse "Sistema de usuarios sintéticos" alineado a la izquierda y "© Moeve 2026" alineado a la derecha, ambos en color `#004656`
+
+---
+
+### Requirement: Accordion de configuración y resumen de sesión
+
+#### Scenario: Accordion expandido sin sesión — layout inline
+- **WHEN** no hay sesión activa y el accordion está expandido
+- **THEN** el selector de perfil, el selector de brief y el botón "Iniciar sesión" SHALL estar en la misma fila horizontal, con el botón alineado al borde inferior de los selectores (no al centro del bloque label+select)
+
+---
+
+### Requirement: Área de conversación con historial de mensajes
+
+#### Scenario: Mensaje del asistente sin tarjeta blanca
+- **WHEN** el usuario sintético responde
+- **THEN** el texto SHALL renderizarse directamente sobre el fondo `#f5f7fd` de la conversación, sin tarjeta blanca ni borde, en Moeve Sans Light 16px color `#004656`
+
+---
+
+### Requirement: Input bar con envío de mensajes
+
+El input bar SHALL mostrar un contenedor con fondo `#f2f6f7`, bordes redondeados `8px`, sin borde exterior visible. El texto del textarea SHALL ser Moeve Sans Light 16px `#004656`.
+
+#### Scenario: Estilo del contenedor del input
+- **WHEN** el input bar es visible
+- **THEN** el textarea SHALL estar sobre un fondo `#f2f6f7` sin borde, con placeholder en color `#6b7280`

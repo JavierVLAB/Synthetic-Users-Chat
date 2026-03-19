@@ -40,6 +40,7 @@ class Settings(BaseSettings):
 
     # ── Seguridad ─────────────────────────────────────────────────────────────
     admin_token: str = ""
+    access_password: str = ""
     allowed_origins: str = "http://localhost:3000"
 
     # ── Base de datos ─────────────────────────────────────────────────────────

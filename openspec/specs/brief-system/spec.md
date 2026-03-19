@@ -4,7 +4,7 @@ Gestión de briefs de producto. Los briefs describen el producto digital que el 
 
 ---
 
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Briefs de producto extensibles por archivos
 
