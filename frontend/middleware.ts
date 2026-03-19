@@ -21,6 +21,6 @@ export const config = {
      *  - /_next (assets de Next.js)
      *  - /fonts, /logo.png, favicon.ico (assets estáticos)
      */
-    "/((?!login$|login/|_next/|fonts/|logo\\.png|favicon\\.ico).*)",
+    "/((?!login$|login/|api/|_next/|fonts/|logo\\.png|favicon\\.ico).*)",
   ],
 };
