@@ -37,3 +37,6 @@ frontend/out/
 .claude/settings.local.json
 
 Research/
+agent_summary/
+CLAUDE.md
+.claude/
