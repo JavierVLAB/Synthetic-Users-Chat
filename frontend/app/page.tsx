@@ -43,6 +43,15 @@ function AppContent() {
 
   const [showCloseModal, setShowCloseModal] = useState(false);
   const [closingSession, setClosingSession] = useState(false);
+  // Texto del input bar — compartido con las píldoras de sugerencias
+  const [inputText, setInputText] = useState("");
+
+  /** Preguntas sugeridas que el investigador puede insertar con un click */
+  const SUGGESTED_QUESTIONS = [
+    "¿Qué te parece la interfaz?",
+    "¿Qué barreras encuentras al producto?",
+    "¿Qué le cambiarías?",
+  ];
 
   const handleConfirmClose = async () => {
     setClosingSession(true);
@@ -69,6 +78,21 @@ function AppContent() {
           onRequestClose={() => setShowCloseModal(true)}
         />
 
+        {/* Píldoras de preguntas sugeridas — visibles solo con sesión activa */}
+        {session && (
+          <div className="flex flex-wrap gap-2">
+            {SUGGESTED_QUESTIONS.map((q) => (
+              <button
+                key={q}
+                onClick={() => setInputText(q)}
+                className="px-4 py-1.5 rounded-full text-sm font-light text-accent bg-[#f0f5ff] border border-accent/30 hover:bg-[#ddeaff] transition-colors"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Área de conversación — ocupa el espacio restante */}
         <div className="flex-1 flex flex-col gap-2 min-h-0">
           <ChatArea messages={messages} isLoading={isLoading} />
@@ -78,6 +102,8 @@ function AppContent() {
             onQuestionnaire={submitQuestionnaire}
             isLoading={isLoading}
             disabled={!session}
+            value={inputText}
+            onValueChange={setInputText}
           />
         </div>
       </main>

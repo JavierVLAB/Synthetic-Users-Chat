@@ -18,6 +18,9 @@ interface InputBarProps {
   onQuestionnaire: (questions: string[]) => Promise<void>;
   isLoading: boolean;
   disabled?: boolean;
+  /** Texto controlado desde fuera (usado por las píldoras de sugerencias) */
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
 export default function InputBar({
@@ -25,8 +28,16 @@ export default function InputBar({
   onQuestionnaire,
   isLoading,
   disabled,
+  value,
+  onValueChange,
 }: InputBarProps) {
-  const [text, setText] = useState("");
+  // Estado interno como fallback cuando no se controla desde fuera
+  const [internalText, setInternalText] = useState("");
+  const text = value !== undefined ? value : internalText;
+  const setText = (v: string) => {
+    if (onValueChange) onValueChange(v);
+    else setInternalText(v);
+  };
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const canSend = text.trim().length > 0 && !isLoading && !disabled;
