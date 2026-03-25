@@ -32,9 +32,14 @@
 
 - [x] 5.1 Crear `frontend/middleware.ts` que lea la cookie `auth-token`
 - [x] 5.2 Redirigir a `/login` si la cookie no existe o el token ha expirado
-- [x] 5.3 Excluir la ruta `/login` y los assets estáticos del middleware
+- [x] 5.3 Excluir la ruta `/login`, rutas `/api/` y assets estáticos del middleware
 
 ## 6. Frontend — Inclusión del token en llamadas a la API
 
 - [x] 6.1 Actualizar `frontend/services/api.ts` para leer el token de `localStorage` e incluirlo en el header `Authorization: Bearer <token>` en todas las llamadas
 - [x] 6.2 Manejar respuestas `401` del backend: limpiar el token de localStorage y redirigir a `/login`
+
+## 7. Docker — Proxy del endpoint de login
+
+- [x] 7.1 Crear `frontend/app/api/auth/login/route.ts` como Route Handler de Next.js que proxea `POST /api/auth/login` al backend FastAPI interno
+- [x] 7.2 Añadir `BACKEND_URL` como variable de entorno de runtime en el servicio frontend de `docker-compose.yml` para que el Route Handler pueda alcanzar al backend en la red Docker

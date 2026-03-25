@@ -42,7 +42,7 @@ limiter = Limiter(key_func=get_remote_address)
 # ── Aplicación FastAPI ────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="Sistema de usuarios sintéticos — Moeve",
+    title="Syntropic",
     description=(
         "API para generar usuarios sintéticos basados en perfiles psicológicos "
         "y profesionales, e interactuar con ellos mediante conversación."

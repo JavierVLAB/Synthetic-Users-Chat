@@ -66,4 +66,19 @@ Se reutiliza el campo `admin_token` existente en `config.py` renombrándolo a `a
 
 ## Open Questions
 
-- ¿Hay un `.env.example` o equivalente donde documentar la nueva variable? → Verificar al implementar
+~~- ¿Hay un `.env.example` o equivalente donde documentar la nueva variable? → Verificar al implementar~~
+→ Resuelto: el `.env` actúa como plantilla. Se añadió `ACCESS_PASSWORD` con comentario explicativo.
+
+## Decisiones tomadas durante la implementación
+
+### 6. Route Handler para el login en Docker
+
+En el entorno Docker, el frontend tiene `NEXT_PUBLIC_API_URL=/api` compilado en el build. El browser llama a `POST /api/auth/login` que llega al servidor Next.js. El middleware de Next.js interceptaba esa request (sin cookie todavía) y redirigía a `/login` con un 307, que preserva el método POST, causando `POST /login → 405`.
+
+**Solución implementada:**
+- Excluir rutas `/api/` del matcher del middleware
+- Crear `frontend/app/api/auth/login/route.ts` como Route Handler de Next.js que proxea la llamada al backend FastAPI por la red interna Docker (`http://synthetic-user-chat-backend:8000`). Esto es necesario porque el browser no puede alcanzar el backend directamente en producción — solo puede pasar por el servidor Next.js
+- El Route Handler lee `BACKEND_URL` en runtime (no en build). Se añadió `BACKEND_URL=http://synthetic-user-chat-backend:8000` al `environment` del servicio frontend en `docker-compose.yml` para que esté disponible en el contenedor runner (el Dockerfile solo lo tenía como build ARG en la etapa builder, no en la etapa runner)
+
+**Por qué no bastó con el rewrite de `next.config.ts`:**
+El rewrite `/api/:path*` tiene menor prioridad que los Route Handlers (filesystem routes). Una vez creado el Route Handler, el rewrite ya no procesa `/api/auth/login`. El Route Handler necesita `BACKEND_URL` en runtime, de ahí el cambio en `docker-compose.yml`.

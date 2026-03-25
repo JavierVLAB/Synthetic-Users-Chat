@@ -1,4 +1,4 @@
-# Frontend — Sistema de usuarios sintéticos Moeve
+# Frontend — Syntropic Moeve
 
 Aplicación Next.js 16 que proporciona la interfaz web del sistema de investigación UX.
 El investigador selecciona un perfil y un brief, conversa con el usuario sintético,

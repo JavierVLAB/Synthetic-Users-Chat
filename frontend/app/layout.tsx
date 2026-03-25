@@ -13,7 +13,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Usuarios sintéticos — Moeve",
+  title: "Syntropic",
   description:
     "Herramienta de investigación UX para interactuar con usuarios sintéticos basados en perfiles de comportamiento.",
 };

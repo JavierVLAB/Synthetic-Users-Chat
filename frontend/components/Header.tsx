@@ -15,7 +15,7 @@ export default function Header() {
             className="object-contain"
           />
           <span className="text-[#047dba] text-xl font-light font-sans whitespace-nowrap">
-            Sistema de usuarios sintéticos
+            Syntropic
           </span>
         </div>
 

@@ -59,7 +59,7 @@ export default function LoginPage() {
           className="object-contain"
         />
         <span className="ml-6 text-[#047dba] text-xl font-light font-sans whitespace-nowrap">
-          Sistema de usuarios sintéticos
+          Syntropic
         </span>
       </header>
 
@@ -107,7 +107,7 @@ export default function LoginPage() {
       {/* Footer */}
       <footer className="h-[65px] border-t border-[#9bcbe3] bg-white flex items-center justify-between px-6">
         <span className="text-[#004656] text-sm font-light font-sans">
-          Sistema de usuarios sintéticos
+          Syntropic
         </span>
         <span className="text-[#004656] text-sm font-sans">© Moeve 2026</span>
       </footer>

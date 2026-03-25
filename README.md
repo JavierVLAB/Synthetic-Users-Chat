@@ -1,4 +1,4 @@
-# Sistema de usuarios sintéticos — Moeve
+# Syntropic — Moeve
 
 ![Version](https://img.shields.io/badge/version-2.0-004656?style=flat-square)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)

@@ -8,10 +8,10 @@ Ciclo de vida completo de una sesión de investigación: creación, aislamiento,
 
 ### Requirement: Creación de sesión con UUID único
 
-El sistema SHALL crear una sesión nueva al recibir `POST /sessions` con perfil y brief seleccionados. SHALL generar un `session_id` UUID v4 único, persistirlo en SQLite y devolverlo al cliente. Todas las operaciones posteriores de esa sesión DEBEN usar ese `session_id`.
+El sistema SHALL crear una sesión nueva al recibir `POST /sessions` con perfil y brief seleccionados. SHALL generar un `session_id` UUID v4 único, persistirlo en SQLite y devolverlo al cliente. Todas las operaciones posteriores de esa sesión DEBEN usar ese `session_id`. El endpoint SHALL requerir autenticación JWT válida.
 
 #### Scenario: Creación exitosa
-- **WHEN** el cliente envía `POST /sessions` con `{ profile_id, brief_id, llm_provider? }`
+- **WHEN** el cliente envía `POST /sessions` con `{ profile_id, brief_id, llm_provider? }` y JWT válido
 - **THEN** el backend SHALL responder `201` con `{ session_id: "<uuid>", created_at: "<iso8601>" }`
 
 #### Scenario: Perfil inexistente
@@ -26,11 +26,15 @@ El sistema SHALL crear una sesión nueva al recibir `POST /sessions` con perfil 
 - **WHEN** dos clientes crean sesiones simultáneamente con el mismo perfil y brief
 - **THEN** cada uno SHALL recibir un `session_id` distinto y sus conversaciones SHALL mantenerse completamente aisladas
 
+#### Scenario: Request sin autenticación
+- **WHEN** el cliente envía `POST /sessions` sin header `Authorization`
+- **THEN** el backend SHALL responder `401`
+
 ---
 
 ### Requirement: Almacenamiento persistente de mensajes
 
-Cada mensaje enviado y recibido durante una sesión SHALL persistirse en SQLite con `session_id`, `role` (`user` | `assistant`), `content` y `timestamp`. El historial SHALL sobrevivir reinicios del servidor.
+Cada mensaje enviado y recibido durante una sesión SHALL persistirse en SQLite con `session_id`, `role` (`user` | `assistant`), `content` y `timestamp`. El historial SHALL sobrevivir reinicios del servidor. El endpoint SHALL requerir autenticación JWT válida.
 
 #### Scenario: Persistencia del mensaje del investigador
 - **WHEN** el investigador envía un mensaje en la sesión `S`
@@ -48,10 +52,10 @@ Cada mensaje enviado y recibido durante una sesión SHALL persistirse en SQLite 
 
 ### Requirement: Consulta del estado de sesión
 
-El sistema SHALL exponer `GET /sessions/{id}` que devuelve el estado completo de la sesión: metadatos + historial de mensajes ordenado cronológicamente.
+El sistema SHALL exponer `GET /sessions/{id}` que devuelve el estado completo de la sesión: metadatos + historial de mensajes ordenado cronológicamente. El endpoint SHALL requerir autenticación JWT válida.
 
 #### Scenario: Sesión existente
-- **WHEN** el cliente llama `GET /sessions/{id}` con un `session_id` válido
+- **WHEN** el cliente llama `GET /sessions/{id}` con un `session_id` válido y JWT válido
 - **THEN** el backend SHALL responder `200` con `{ session_id, profile_id, brief_id, llm_provider, created_at, messages: [...] }`
 
 #### Scenario: Sesión inexistente
@@ -62,10 +66,10 @@ El sistema SHALL exponer `GET /sessions/{id}` que devuelve el estado completo de
 
 ### Requirement: Cierre de sesión
 
-El sistema SHALL marcar la sesión como cerrada al recibir `DELETE /sessions/{id}`, registrando el `closed_at`. Una sesión cerrada no SHALL aceptar nuevos mensajes.
+El sistema SHALL marcar la sesión como cerrada al recibir `DELETE /sessions/{id}`, registrando el `closed_at`. Una sesión cerrada no SHALL aceptar nuevos mensajes. El endpoint SHALL requerir autenticación JWT válida.
 
 #### Scenario: Cierre exitoso
-- **WHEN** el cliente llama `DELETE /sessions/{id}` con un `session_id` válido y activo
+- **WHEN** el cliente llama `DELETE /sessions/{id}` con un `session_id` válido, activo y JWT válido
 - **THEN** el backend SHALL responder `200`, actualizar `closed_at` en SQLite y dejar la sesión como solo lectura
 
 #### Scenario: Intento de chat en sesión cerrada
@@ -80,10 +84,10 @@ El sistema SHALL marcar la sesión como cerrada al recibir `DELETE /sessions/{id
 
 ### Requirement: Generación de PDF de sesión
 
-El sistema SHALL generar un PDF descargable al recibir `GET /sessions/{id}/pdf`. El PDF SHALL incluir: logo Moeve, metadatos de sesión (perfil, brief, LLM, fechas), y la conversación completa con timestamps. El PDF SHALL generarse con WeasyPrint desde una plantilla HTML que usa los tokens de diseño Moeve.
+El sistema SHALL generar un PDF descargable al recibir `GET /sessions/{id}/pdf`. El PDF SHALL incluir: logo Moeve, metadatos de sesión (perfil, brief, LLM, fechas), y la conversación completa con timestamps. El PDF SHALL generarse con WeasyPrint desde una plantilla HTML que usa los tokens de diseño Moeve. El endpoint SHALL requerir autenticación JWT válida.
 
 #### Scenario: Generación exitosa
-- **WHEN** el cliente llama `GET /sessions/{id}/pdf`
+- **WHEN** el cliente llama `GET /sessions/{id}/pdf` con JWT válido
 - **THEN** el backend SHALL responder `200` con `Content-Type: application/pdf` y el binario del PDF como cuerpo de respuesta
 
 #### Scenario: Nombre del archivo descargado

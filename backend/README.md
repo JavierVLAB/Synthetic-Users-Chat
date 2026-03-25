@@ -1,4 +1,4 @@
-# Backend — Sistema de usuarios sintéticos Moeve
+# Backend — Syntropic Moeve
 
 API REST construida con FastAPI que gestiona sesiones de investigación UX,
 conversa con modelos LLM actuando como usuarios sintéticos, y genera
