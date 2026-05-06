@@ -33,7 +33,7 @@ class AnthropicProvider(LLMProvider):
             api_key=settings.anthropic_api_key,
             timeout=REQUEST_TIMEOUT_SECONDS,
         )
-        self.model = "claude-sonnet-4-6"
+        self.model = "claude-haiku-4-5-20251001"
 
     async def chat(self, messages: list[dict], system_prompt: str) -> str:
         """
